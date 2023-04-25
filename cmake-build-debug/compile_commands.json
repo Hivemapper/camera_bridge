@@ -1,0 +1,87 @@
+[
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o CMakeFiles/libcamera-bridge.dir/app.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/app.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/app.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dlibcamera_app_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o core/CMakeFiles/libcamera_app.dir/libcamera_app.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/core/libcamera_app.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/core/libcamera_app.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dlibcamera_app_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o core/CMakeFiles/libcamera_app.dir/post_processor.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/core/post_processor.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/core/post_processor.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dlibcamera_app_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o core/CMakeFiles/libcamera_app.dir/version.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug/core/version.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug/core/version.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dlibcamera_app_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o core/CMakeFiles/libcamera_app.dir/options.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/core/options.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/core/options.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -D_FILE_OFFSET_BITS=64 -Dencoders_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o encoder/CMakeFiles/encoders.dir/encoder.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/encoder/encoder.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/encoder/encoder.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -D_FILE_OFFSET_BITS=64 -Dencoders_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o encoder/CMakeFiles/encoders.dir/mjpeg_encoder.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/encoder/mjpeg_encoder.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/encoder/mjpeg_encoder.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -D_FILE_OFFSET_BITS=64 -Dnetwork_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o network/CMakeFiles/network.dir/output.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/network/output.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/network/output.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -D_FILE_OFFSET_BITS=64 -Dnetwork_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o network/CMakeFiles/network.dir/net_input.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/network/net_input.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/network/net_input.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -D_FILE_OFFSET_BITS=64 -Dnetwork_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o network/CMakeFiles/network.dir/file_output.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/network/file_output.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/network/file_output.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -D_FILE_OFFSET_BITS=64 -Dnetwork_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o network/CMakeFiles/network.dir/file_manager.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/network/file_manager.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/network/file_manager.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dpost_processing_stages_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o post_processing_stages/CMakeFiles/post_processing_stages.dir/post_processing_stage.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/post_processing_stage.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/post_processing_stage.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dpost_processing_stages_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o post_processing_stages/CMakeFiles/post_processing_stages.dir/negate_stage.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/negate_stage.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/negate_stage.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dpost_processing_stages_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o post_processing_stages/CMakeFiles/post_processing_stages.dir/hdr_stage.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/hdr_stage.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/hdr_stage.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dpost_processing_stages_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o post_processing_stages/CMakeFiles/post_processing_stages.dir/pwl.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/pwl.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/pwl.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dpost_processing_stages_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o post_processing_stages/CMakeFiles/post_processing_stages.dir/histogram.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/histogram.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/histogram.cpp"
+},
+{
+  "directory": "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+  "command": "/usr/bin/c++ -DOPENCV_PRESENT=0 -D_FILE_OFFSET_BITS=64 -Dpost_processing_stages_EXPORTS -I/home/cbillett/devel/hivemapper/camera_bridge -I/usr/local/include/libcamera -g -fPIC -fdiagnostics-color=always -Wall -Wextra -pedantic -Wno-unused-parameter -faligned-new -Werror -Wfatal-errors -Wno-psabi -std=gnu++17 -o post_processing_stages/CMakeFiles/post_processing_stages.dir/motion_detect_stage.cpp.o -c /home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/motion_detect_stage.cpp",
+  "file": "/home/cbillett/devel/hivemapper/camera_bridge/post_processing_stages/motion_detect_stage.cpp"
+}
+]

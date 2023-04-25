@@ -1,0 +1,323 @@
+{
+	"inputs" : 
+	[
+		{
+			"path" : "CMakeLists.txt"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeSystemSpecificInitialize.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeCCompiler.cmake"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeSystemSpecificInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeGenericSystem.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeInitializeConfigs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Platform/Linux.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Platform/UnixPaths.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeCInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Compiler/GNU-C.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Compiler/GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Platform/Linux-GNU-C.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Platform/Linux-GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeCXXInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeLanguageInformation.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Compiler/GNU-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Compiler/GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Platform/Linux-GNU-CXX.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/Platform/Linux-GNU.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/CMakeCommonLanguageInclude.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPkgConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"path" : "core/CMakeLists.txt"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/GNUInstallDirs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindBoost.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfigVersion.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config-version.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_program_options-1.74.0/boost_program_options-config-version.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_program_options-1.74.0/boost_program_options-config.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/BoostDetectToolset-1.74.0.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_program_options-1.74.0/libboost_program_options-variant-shared.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_program_options-1.74.0/libboost_program_options-variant-static.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config-version.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/share/cmake/nlohmann_json/nlohmann_jsonConfigVersion.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/local/share/cmake/nlohmann_json/nlohmann_jsonTargets.cmake"
+		},
+		{
+			"path" : "encoder/CMakeLists.txt"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/GNUInstallDirs.cmake"
+		},
+		{
+			"path" : "network/CMakeLists.txt"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/GNUInstallDirs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindBoost.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageHandleStandardArgs.cmake"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/FindPackageMessage.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfigVersion.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config-version.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_filesystem-1.74.0/boost_filesystem-config-version.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_filesystem-1.74.0/boost_filesystem-config.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/BoostDetectToolset-1.74.0.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_filesystem-1.74.0/libboost_filesystem-variant-shared.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_filesystem-1.74.0/libboost_filesystem-variant-static.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config-version.cmake"
+		},
+		{
+			"isExternal" : true,
+			"path" : "/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.74.0/boost_headers-config.cmake"
+		},
+		{
+			"path" : "post_processing_stages/CMakeLists.txt"
+		},
+		{
+			"isCMake" : true,
+			"isExternal" : true,
+			"path" : "/home/cbillett/.cache/JetBrains/RemoteDev/dist/3c8ecd31118eb_CLion-2023.1.1/bin/cmake/linux/x64/share/cmake-3.25/Modules/GNUInstallDirs.cmake"
+		}
+	],
+	"kind" : "cmakeFiles",
+	"paths" : 
+	{
+		"build" : "/home/cbillett/devel/hivemapper/camera_bridge/cmake-build-debug",
+		"source" : "/home/cbillett/devel/hivemapper/camera_bridge"
+	},
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}

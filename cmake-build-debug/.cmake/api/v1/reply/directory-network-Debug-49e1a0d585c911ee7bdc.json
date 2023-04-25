@@ -1,0 +1,45 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"network/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 11,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"network/libnetwork.so"
+			],
+			"targetId" : "network::@39732e8ab9fc593479e7",
+			"targetIndex" : 4,
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "network",
+		"source" : "network"
+	}
+}
