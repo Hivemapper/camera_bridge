@@ -271,7 +271,7 @@ void ObjectDetectTfStage::interpretOutputs()
 
 static PostProcessingStage *Create(LibcameraApp *app)
 {
-	return new ObjectDet
+    return new ObjectDetectTfStage(app);
 }
 
 static RegisterStage reg(NAME, &Create);
