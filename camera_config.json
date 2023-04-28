@@ -4,7 +4,7 @@
       "prefix": "",
       "output": "",
       "output2": "/media/usb0/recording/",
-      "downsampleStreamDir": "/tmp/2k"
+      "downsampleStreamDir": "/tmp/2k/"
     }
   },
   "camera": {
