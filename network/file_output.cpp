@@ -20,27 +20,16 @@
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
+    dir2K_ = options_->downsampleStreamDir;
+    dir4K_ = options_->output;
+    dirUSB_ = options_->output_2nd;
 
-    std::vector<size_t> minFreeSizes = {0, 0, 0};
-    std::vector<size_t> maxUsedSizes = {0, 0, 0};
+//    dir4K_ = options_->output;
+//    dirUSB_ = options_->output_2nd;
+//    directory_[2] = previewDir_;
 
-    previewDir_ = options_->downsampleStreamDir;
-    gpsReadyDir_ = options_->gpsLockCheckDir;
-
-    directory_[0] = options_->output;
-    directory_[1] = options_->output_2nd;
-    directory_[2] = previewDir_;
-
-    latestDir_ = options_->latestChkFileDir;
-    minFreeSizes[0] = options_->minfreespace;
-    minFreeSizes[1] = options_->minfreespace_2nd;
-    minFreeSizes[2] = options_->minfreespace;
 
     std::cerr << "Initializing sizes.." << std::endl;
-
-    maxUsedSizes[0] = options_->maxusedspace;
-    maxUsedSizes[1] = options_->maxusedspace_2nd;
-    maxUsedSizes[2] = options_->maxusedspace;
 
     verbose_ = options_->verbose;
     prefix_ = options_->prefix;
@@ -51,15 +40,14 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     gpsLockAcq_ = false;
 
     //Check if directories exist, and if not then ignore them
-    if (!boost::filesystem::exists(directory_[0])) {
-        directory_[0] = "";
+    if (!boost::filesystem::exists(dir4K_)) {
+        dir4K_ = "";
     }
-    if (!boost::filesystem::exists(directory_[1])) {
-        directory_[1] = "";
+    if (!boost::filesystem::exists(dirUSB_)) {
+        dirUSB_ = "";
     }
-    if (!boost::filesystem::exists(previewDir_)) {
-        previewDir_ = "";
-        directory_[2] = "";
+    if (!boost::filesystem::exists(dir2K_)) {
+        dir2K_ = "";
     }
 
     //Use stringstream to create latest file for picture
@@ -70,12 +58,6 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
 }
 
 FileOutput::~FileOutput() {
-}
-
-void FileOutput::checkGPSLock() {
-    if (boost::filesystem::exists(gpsReadyDir_)) {
-        gpsLockAcq_ = true;
-    }
 }
 
 void FileOutput::outputBuffer(void *mem,
@@ -96,20 +78,18 @@ void FileOutput::outputBuffer(void *mem,
     catch (std::exception const &e) {
         std::cerr << "Time recording issues" << std::endl;
     }
-    std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", directory_[0], prefix_, tv.tv_sec,
+    std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir4K_, prefix_, tv.tv_sec,
                                            tv.tv_usec, postfix_);
-    if (directory_[0] != "") {
+    if (!dir4K_.empty()) {
         wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
     }
-    if (directory_[1] != "") {
-        if (gpsReadyDir_ == "" || gpsLockAcq_) {
-            std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", directory_[1], prefix_, tv.tv_sec,
-                                                  tv.tv_usec, postfix_);
-            wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
-        }
+    if (!dirUSB_.empty()) {
+        std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirUSB_, prefix_, tv.tv_sec,
+                                              tv.tv_usec, postfix_);
+        wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
     }
-    if (previewDir_ != "") {
-        std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", previewDir_, prefix_, tv.tv_sec,
+    if (!dir2K_.empty()) {
+        std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir2K_, prefix_, tv.tv_sec,
                                                tv.tv_usec, postfix_);
         wrapAndWrite(prevMem, prevFileName, prevSize, exifMem, exifSize, 2);
     }
@@ -126,9 +106,6 @@ void FileOutput::outputBuffer(void *mem,
     }
 
     frameNumTrun = (frameNumTrun + 1) % 1000;
-    if ((frameNumTrun % 100 == 0) && (gpsReadyDir_ != "")) {
-        checkGPSLock();
-    }
 }
 
 struct timeval FileOutput::getAdjustedTime(int64_t timestamp_us) {

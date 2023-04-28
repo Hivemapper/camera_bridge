@@ -44,9 +44,9 @@ private:
     bool writeTempFile_;
     std::string latestDir_;
     std::string latestFileName_;
-    std::string directory_[3];
-    std::string previewDir_;
-    std::string gpsReadyDir_;
+    std::string dir2K_;
+    std::string dir4K_;
+    std::string dirUSB_;
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
