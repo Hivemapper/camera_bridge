@@ -81,6 +81,9 @@ void Options::json_manage_fs_cfg(nlohmann::json fileinfo_cfg)
 
 void Options::json_manage_rec_cfg(nlohmann::json recording_cfg)
 {
+  if(recording_cfg.contains("snapshot")){
+      snapshot = recording_cfg.at("snapshot");
+  }
   if(recording_cfg.contains("connection"))
   {
     json_manage_cx_cfg(recording_cfg.at("connection"));
