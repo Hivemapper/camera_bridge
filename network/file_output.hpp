@@ -14,8 +14,6 @@
 #include <queue>
 #include "output.hpp"
 
-#include "file_manager.hpp"
-
 class FileOutput : public Output
 {
 public:
@@ -46,12 +44,11 @@ private:
     bool writeTempFile_;
     std::string latestDir_;
     std::string latestFileName_;
-    std::string directory_[3];
-    std::string previewDir_;
-    std::string gpsReadyDir_;
+    std::string dir2K_;
+    std::string dir4K_;
+    std::string dirUSB_;
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
-    FileManager fileManager_;
 
 };

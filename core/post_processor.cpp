@@ -84,7 +84,6 @@ void PostProcessor::Process(CompletedRequestPtr &request)
 {
 	if (stages_.empty())
 	{
-        std::cout << "empty post processor stages" << std::endl;
         callback_(request);
 		return;
 	}

@@ -33,6 +33,8 @@ struct Options
        "Displays the build version number")
       ("verbose,v", value<bool>(&verbose)->default_value(false)->implicit_value(true),
        "Output extra debug and diagnostics")
+      ("snapshot", value<bool>(&snapshot)->default_value(false)->implicit_value(true),
+       "will produce a single frame")
       ("config,c", value<std::string>(&config_file)->implicit_value("config.txt"),
        "Read the options from a file. If no filename is specified, default to config.txt. "
        "In case of duplicate options, the ones provided on the command line will be used. "
@@ -135,6 +137,7 @@ struct Options
   bool help;
   bool version;
   bool verbose;
+  bool snapshot;
   bool netconfig;
   uint64_t timeout; // in ms
   std::string config_file;
