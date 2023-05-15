@@ -128,8 +128,11 @@ void PostProcessor::outputThread()
 			});
 
 			// Only quit when the futures_ queue is empty.
-			if (quit_ && futures_.empty())
+			if (quit_ && futures_.empty()){
+				std::cout << "PostProcessor thread quitting:" << std::endl;
 				break;
+			}
+
 
 			drop_request = futures_.front().get();
 			futures_.pop();
@@ -144,6 +147,7 @@ void PostProcessor::outputThread()
 
 void PostProcessor::Stop()
 {
+	std::cout << "PostProcessor stopping:" << std::endl;
 	for (auto &stage : stages_)
 	{
 		stage->Stop();
@@ -156,6 +160,8 @@ void PostProcessor::Stop()
 	}
 
 	output_thread_.join();
+	std::cout << "PostProcessor after join:" << std::endl;
+
 }
 
 void PostProcessor::Teardown()

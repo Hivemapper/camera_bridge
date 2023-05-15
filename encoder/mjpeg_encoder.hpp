@@ -26,6 +26,7 @@ public:
     // Encode the given buffer.
     void EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height, unsigned int stride,
                       int64_t timestamp_us, libcamera::ControlList metadata) override;
+    void Stop() override;
 
 private:
     // How many threads to use. Whichever thread is idle will pick up the next frame.
@@ -82,8 +83,6 @@ private:
 
     unsigned int crop_size_;
 
-    uint8_t *crop_i420_c_;
-
     uint8_t *cropBuffer_[NUM_ENC_THREADS];
 
     void initDownSampleInfo(EncodeItem &source);
@@ -120,5 +119,4 @@ private:
     std::condition_variable output_cond_var_;
     std::thread output_thread_;
 
-    void print(std::string toPrint);
 };

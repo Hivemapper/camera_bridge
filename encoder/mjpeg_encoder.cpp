@@ -9,18 +9,12 @@
 #include <iostream>
 
 #include <jpeglib.h>
-#include <turbojpeg.h>
 #include <libyuv.h>
 #include <libexif/exif-data.h>
 #include <libcamera/controls.h>
 #include <map>
 #include <cstring>
 #include "mjpeg_encoder.hpp"
-#include "../core/video_options.hpp"
-#include <fcntl.h>
-
-
-//#include <Magick++.h>
 
 #if JPEG_LIB_VERSION_MAJOR > 9 || (JPEG_LIB_VERSION_MAJOR == 9 && JPEG_LIB_VERSION_MINOR >= 4)
 typedef size_t jpeg_mem_len_t;
@@ -168,7 +162,7 @@ void exif_set_string(ExifEntry *entry, char const *s) {
 
 MjpegEncoder::MjpegEncoder(VideoOptions const *options)
         : Encoder(options), abort_(false), index_(0) {
-    if (options_->verbose) {
+    if (options_->verbose && !options_->snapshot) {
         output_thread_ = std::thread(&MjpegEncoder::outputThread, this);
     }
 
@@ -187,12 +181,6 @@ MjpegEncoder::MjpegEncoder(VideoOptions const *options)
 }
 
 MjpegEncoder::~MjpegEncoder() {
-    abort_ = true;
-    for (int i = 0; i < NUM_ENC_THREADS; i++)
-        encode_thread_[i].join();
-    output_thread_.join();
-    if (options_->verbose)
-        std::cerr << "MjpegEncoder closed" << std::endl;
 }
 
 void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height,
@@ -525,6 +513,7 @@ void MjpegEncoder::encodeThread(int num) {
             while (true) {
                 using namespace std::chrono_literals;
                 if (abort_) {
+                    std::cout << "aborting mpeg encoder: " << num  << std::endl;
                     jpeg_destroy_compress(&cinfoMain);
                     return;
                 }
@@ -601,13 +590,11 @@ void MjpegEncoder::encodeThread(int num) {
         free(encoded_buffer);
         free(encoded_prev_buffer);
 
-//        std::cout << "stat_mutex_ lock in ++"  << std::endl;
         if (options_->verbose) {
             stat_mutex_.lock();
             frame_second_++;
             stat_mutex_.unlock();
         }
-//        std::cout << "stat_mutex_ unlock in ++"  << std::endl;
     }
 }
 
@@ -624,4 +611,13 @@ void MjpegEncoder::outputThread() {
             }
         }
     }
+}
+
+void MjpegEncoder::Stop() {
+    std::cout << "Stop call!" << std::endl;
+    abort_ = true;
+    for (int i = 0; i < NUM_ENC_THREADS; i++){
+        encode_thread_[i].join();
+    }
+    std::cout << "All threads stopped" << std::endl;
 }
