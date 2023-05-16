@@ -35,10 +35,10 @@ struct Options
        "Output extra debug and diagnostics")
       ("snapshot", value<bool>(&snapshot)->default_value(false)->implicit_value(true),
        "will produce a single frame")
-      ("config,c", value<std::string>(&config_file)->implicit_value("config.txt"),
-       "Read the options from a file. If no filename is specified, default to config.txt. "
-       "In case of duplicate options, the ones provided on the command line will be used. "
-       "Note that the config file must only contain the long form options.")
+      ("config,c", value<std::string>(&config_file)->implicit_value("config.json"),
+       "file containing option")
+      ("config-override", value<std::string>(&config_file_override)->implicit_value("config.json"),
+       "file overriding config")
       ("netconfig,n", value<bool>(&netconfig)->default_value(false)->implicit_value(true),
         "Connect to the network endpoint of the camera firmware and listen for configuration "
         "changes over the network")
@@ -141,6 +141,7 @@ struct Options
   bool netconfig;
   uint64_t timeout; // in ms
   std::string config_file;
+  std::string config_file_override;
   std::string prefix;
   bool writeTmp;
   std::string output;
