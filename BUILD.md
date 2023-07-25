@@ -1,5 +1,18 @@
-# Setup to build Camera Bridge
+# Build Camera Bridge from docker
+```shell
+ docker run --name build-camera-bridge --mount type=bind,source="$(pwd)/..",target=/devel/camera-bridge build-camera-bridge
+ docker exec -it build-camera-bridge bash
+```
+Once in the container ...
+```shell
+cd /devel/camera-bridge
+mkdir build
+cd build
+cmake ..
+make
+```
 
+# Setup to build Camera Bridge for linux and raspberry pi
 ```shell
 sudo apt update && sudo apt upgrade
 ```
@@ -25,10 +38,6 @@ sudo apt-get install gnutls-bin
 sudo apt install libgnutls28-dev
 ```
 
-## Install libcamera
-```shell
-sudo apt-get install libcamera-dev
-```
 ## Install Boost
 ```shell
 sudo apt-get install libboost-all-dev
@@ -116,14 +125,3 @@ mkdir build; cd build
 cmake ..
 make
 ```
-
-
-
-
-
-
-
-
-
-
-
