@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM --platform=linux/arm64 ubuntu:20.04
 LABEL authors="cbillett"
 USER root
 
@@ -28,6 +28,9 @@ RUN apt-get -y install scons
 RUN apt-get -y install udev
 
 RUN apt-get -y install libjpeg-dev
+
+RUN apt-get -y install gcc-aarch64-linux-gnu
+RUN apt-get -y install gcc-arm-linux-gnueabihf
 
 WORKDIR /devel
 RUN git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
