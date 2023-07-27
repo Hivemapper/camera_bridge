@@ -12,6 +12,7 @@ cmake ..
 make
 ```
 
+----------------------------------------------------------
 # Setup to build Camera Bridge for linux and raspberry pi
 ```shell
 sudo apt update && sudo apt upgrade
