@@ -87,5 +87,18 @@ RUN make
 RUN make install
 
 WORKDIR /devel
+RUN git clone https://github.com/boostorg/boost.git
+WORKDIR /devel/boost
+RUN git checkout boost-1.78.0
+RUN git submodule update --init --recursive
+RUN mkdir build
+WORKDIR /devel/boost/build
+RUN cmake ..
+RUN make
+RUN make install
+RUN rm -rf /usr/include/boost/
+RUN ln -s /usr/local/include/boost /usr/include/boost
+
+WORKDIR /devel
 
 ENTRYPOINT ["top", "-b"]
