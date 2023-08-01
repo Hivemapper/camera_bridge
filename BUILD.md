@@ -119,10 +119,10 @@ make
 sudo make install
 ```
 
-# Finally the Camera Bridge!
+# Finally, the Camera Bridge!
 ```shell
 export LD_LIBRARY_PATH=/opt/dashcam/lib/
-mkdir build; cd build
+cd build
 cmake ..
 make
 ```

@@ -13,3 +13,9 @@ scp /devel/camera-bridge/libcamera-brdige
 export LD_LIBRARY_PATH=/usr/local/lib/:/usr/local/lib/arm-linux-gnueabihf/
 ./build/libcamera-bridge --config ~/git/camera_bridge/cam-config.json --config-override ~/git/camera_bridge/cam-config.json --segment 0  --timeout 0 --tuning-file imx477.json --verbose
 ```
+
+## Compile with specific environment variable
+In the case you want to build the TF post-processing:
+```bash
+cmake -DENABLE_TFLITE=1 ..
+```
