@@ -74,12 +74,14 @@ void FileOutput::outputBuffer(void *mem,
 
     try {
         tv = getAdjustedTime(timestamp_us);
-    }
-    catch (std::exception const &e) {
+    } catch (std::exception const &e) {
         std::cerr << "Time recording issues" << std::endl;
     }
     std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir4K_, prefix_, tv.tv_sec,
                                            tv.tv_usec, postfix_);
+
+    std::cout << "file name saved: " << primFileName << std::endl;
+
     if (!dir4K_.empty()) {
         wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
     }

@@ -7,34 +7,37 @@
 
 #include "tf_stage.hpp"
 
-TfStage::TfStage(LibcameraApp *app, int tf_w, int tf_h) : PostProcessingStage(app), tf_w_(tf_w), tf_h_(tf_h)
-{
-	if (tf_w_ <= 0 || tf_h_ <= 0)
+TfStage::TfStage(LibcameraApp *app, int tf_w, int tf_h) : PostProcessingStage(app), tf_w_(tf_w), tf_h_(tf_h) {
+	if (tf_w_ <= 0 || tf_h_ <= 0) {
 		throw std::runtime_error("TfStage: Bad TFLite input dimensions");
+	}
 }
 
-void TfStage::Read(boost::property_tree::ptree const &params)
-{
+void TfStage::Read(boost::property_tree::ptree const &params) {
 	config_->number_of_threads = params.get<int>("number_of_threads", 2);
 	config_->refresh_rate = params.get<int>("refresh_rate", 5);
 	config_->model_file = params.get<std::string>("model_file", "");
 	config_->verbose = params.get<int>("verbose", 0);
 	config_->normalisation_offset = params.get<float>("normalisation_offset", 127.5);
 	config_->normalisation_scale = params.get<float>("normalisation_scale", 127.5);
+	config_->tensor_height = params.get<float>("tensor_height", 640);
+    config_->tensor_width = params.get<float>("tensor_width", 640);
+
+	tf_h_ = config_->tensor_height;
+	tf_w_ = config_->tensor_width;
 
 	initialise();
 
 	readExtras(params);
 }
 
-void TfStage::initialise()
-{
+void TfStage::initialise() {
 	model_ = tflite::FlatBufferModel::BuildFromFile(config_->model_file.c_str());
 	if (!model_){
         std::cerr << "TfStage: Failed to load model" << std::endl;
         throw std::runtime_error("TfStage: Failed to load model");
     }
-	std::cerr << "TfStage: Loaded model " << config_->model_file << std::endl;
+	std::cout << "TfStage: Loaded model " << config_->model_file << std::endl;
 
 	tflite::ops::builtin::BuiltinOpResolver resolver;
 	tflite::InterpreterBuilder(*model_, resolver)(&interpreter_);
@@ -47,7 +50,6 @@ void TfStage::initialise()
 		interpreter_->SetNumThreads(config_->number_of_threads);
 
 	if (interpreter_->AllocateTensors() != kTfLiteOk){
-
         std::cerr << "TfStage: Failed to allocate tensors" << std::endl;
         throw std::runtime_error("TfStage: Failed to allocate tensors");
     }
@@ -56,9 +58,18 @@ void TfStage::initialise()
 	int input = interpreter_->inputs()[0];
 	size_t size = interpreter_->tensor(input)->bytes;
 	size_t check = tf_w_ * tf_h_ * 3; // assume RGB
+
+	if (config()->verbose) {
+		std::cerr << "Input: " << input << std::endl;
+		std::cerr << "Size: " << size << std::endl;
+		std::cerr << "Tensorflow width: " << tf_w_<< std::endl;
+		std::cerr << "Tensorflow height: " << tf_h_ << std::endl;
+		std::cerr << "Check: " << check << std::endl;
+	}
+
 	if (interpreter_->tensor(input)->type == kTfLiteUInt8)
 		check *= sizeof(uint8_t);
-	else if (interpreter_->tensor(input)->type == kTfLiteFloat32)
+	else if (interpreter_->tensor(input)->type == kTfLiteFloat16 || interpreter_->tensor(input)->type == kTfLiteFloat32)
 		check *= sizeof(float);
 	else{
         std::cerr << "TfStage: Input tensor data type not supported" << std::endl;
@@ -71,15 +82,13 @@ void TfStage::initialise()
         throw std::runtime_error("TfStage: Input tensor size mismatch");
     }
 
-    std::cerr << "TfStage: initialise done!" << config_->model_file << std::endl;
+    std::cerr << "TfStage: initialise done! " << config_->model_file << std::endl;
 }
 
-void TfStage::Configure()
-{
+void TfStage::Configure() {
 	lores_w_ = lores_h_ = lores_stride_ = 0;
 	lores_stream_ = app_->LoresStream();
-	if (lores_stream_)
-	{
+	if (lores_stream_) {
 		app_->StreamDimensions(lores_stream_, &lores_w_, &lores_h_, &lores_stride_);
 		if (config_->verbose)
 			std::cerr << "TfStage: Low resolution stream is " << lores_w_ << "x" << lores_h_ << std::endl;
@@ -106,12 +115,10 @@ void TfStage::Configure()
 	checkConfiguration();
 }
 
-bool TfStage::Process(CompletedRequestPtr &completed_request)
-{
+bool TfStage::Process(CompletedRequestPtr &completed_request) {
 	if (!lores_stream_){
         return false;
     }
-
 
 	{
 		std::unique_lock<std::mutex> lck(future_mutex_);
@@ -129,8 +136,9 @@ bool TfStage::Process(CompletedRequestPtr &completed_request)
 			*future_ = std::async(std::launch::async, [this] {
 				auto time_taken = ExecutionTime<std::milli>(&TfStage::runInference, this).count();
 
-				if (config_->verbose)
+				if (config_->verbose) {
 					std::cerr << "TfStage: Inference time: " << time_taken << " ms" << std::endl;
+				}
 			});
 		}
 	}

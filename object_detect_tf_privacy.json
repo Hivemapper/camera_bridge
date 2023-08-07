@@ -1,0 +1,21 @@
+{
+  "object_detect_tf":
+  {
+    "number_of_threads" : 2,
+    "refresh_rate" : 1,
+    "confidence_threshold" : 0.5,
+    "overlap_threshold" : 0.5,
+    "coordinates_detected_objects" : 1,
+    "class_labels" : 6,
+    "confidence_score" : 8400,
+    "tensor_height": 640.0,
+    "tensor_width": 640.0,
+    "model_file" : "/home/ed/models/privacy7000_float32.tflite",
+    "labels_file" : "/home/ed/models/labelmap_plate.txt",
+    "verbose" : 1
+  },
+  "object_detect_draw_cv":
+  {
+    "line_thickness" : 2
+  }
+}

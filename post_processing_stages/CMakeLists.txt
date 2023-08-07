@@ -38,7 +38,7 @@ else()
 endif()
 
 if (NOT DEFINED ENABLE_TFLITE)
-    set(ENABLE_TFLITE 0)
+    set(ENABLE_TFLITE 1)
 endif()
 if (ENABLE_TFLITE)
     set(SRC ${SRC} tf_stage.cpp object_classify_tf_stage.cpp pose_estimation_tf_stage.cpp object_detect_tf_stage.cpp segmentation_tf_stage.cpp object_detect_draw_cv_stage.cpp)

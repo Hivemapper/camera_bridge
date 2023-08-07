@@ -387,7 +387,6 @@ MjpegEncoder::encodeJPEG(struct jpeg_compress_struct &cinfo, uint8_t *&encoded_b
     JSAMPROW u_rows[8];
     JSAMPROW v_rows[8];
 
-
     for (uint8_t *Y_row = out_Y, *U_row = out_U, *V_row = out_V; cinfo.next_scanline < crop_height_;) {
         for (int i = 0; i < 16; i++, Y_row += out_stride)
             y_rows[i] = std::min(Y_row, Y_max);

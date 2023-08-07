@@ -25,8 +25,8 @@ struct Detection
 	{
 		std::stringstream output;
 		output.precision(2);
-		output << name << "[" << category << "] (" << confidence << ") @ " << box.x << "," << box.y << " " << box.width
-			   << "x" << box.height;
+		output << name << "[category: " << category << "] (confidence: " << confidence << ") @ x: " << box.x << ", y: " << box.y << " width: " << box.width
+			   << " height: " << box.height;
 		return output.str();
 	}
 };

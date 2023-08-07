@@ -116,8 +116,8 @@ static void execute_stream(LibcameraEncoder &app, VideoOptions *options)
   }
   
   app.StopCamera();
-    std::cout << "stopping encoder" << std::endl;
-    app.StopEncoder();
+  std::cout << "stopping encoder" << std::endl;
+  app.StopEncoder();
   std::cout << "Stream destroyed" << std::endl;
 }
 

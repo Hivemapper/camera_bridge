@@ -15,27 +15,19 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-PostProcessor::PostProcessor(LibcameraApp *app) : app_(app)
-{
-}
+PostProcessor::PostProcessor(LibcameraApp *app) : app_(app) { }
 
-PostProcessor::~PostProcessor()
-{
-}
+PostProcessor::~PostProcessor() { }
 
-void PostProcessor::Read(std::string const &filename)
-{
+void PostProcessor::Read(std::string const &filename) {
     std::cout << "PostProcessor::Read: " << filename << std::endl;
     boost::property_tree::ptree root;
 	boost::property_tree::read_json(filename, root);
-	for (auto const &key_and_value : root)
-	{
+	for (auto const &key_and_value : root) {
         std::cout << "PostProcessor::key_and_value.first: " << key_and_value.first.c_str() << std::endl;
 		PostProcessingStage *stage = createPostProcessingStage(key_and_value.first.c_str());
-		if (stage)
-		{
-            std::cout << "PostProcessor::found stage" << std::endl;
-
+		if (stage) {
+            std::cout << "PostProcessor::found stage first: " << key_and_value.first.c_str() << std::endl;
 			stage->Read(key_and_value.second);
 			stages_.push_back(StagePtr(stage));
 		}

@@ -6,11 +6,8 @@
  */
 
 #include "opencv2/imgproc.hpp"
-
 #include "core/libcamera_app.hpp"
-
 #include "post_processing_stages/post_processing_stage.hpp"
-
 #include "object_detect.hpp"
 
 using namespace cv;
@@ -18,46 +15,41 @@ using namespace cv;
 using Rectange = libcamera::Rectangle;
 using Stream = libcamera::Stream;
 
-class ObjectDetectDrawCvStage : public PostProcessingStage
-{
-public:
-	ObjectDetectDrawCvStage(LibcameraApp *app) : PostProcessingStage(app) {}
+class ObjectDetectDrawCvStage : public PostProcessingStage {
+	public:
+		ObjectDetectDrawCvStage(LibcameraApp *app) : PostProcessingStage(app) {}
 
-	char const *Name() const override;
+		char const *Name() const override;
 
-	void Read(boost::property_tree::ptree const &params) override;
+		void Read(boost::property_tree::ptree const &params) override;
 
-	void Configure() override;
+		void Configure() override;
 
-	bool Process(CompletedRequestPtr &completed_request) override;
+		bool Process(CompletedRequestPtr &completed_request) override;
 
-private:
-	Stream *stream_;
-	int line_thickness_;
-	double font_size_;
+	private:
+		Stream *stream_;
+		int line_thickness_;
+		double font_size_;
 };
 
 #define NAME "object_detect_draw_cv"
 
-char const *ObjectDetectDrawCvStage::Name() const
-{
+char const *ObjectDetectDrawCvStage::Name() const {
 	return NAME;
 }
 
-void ObjectDetectDrawCvStage::Configure()
-{
+void ObjectDetectDrawCvStage::Configure() {
 	// Only draw on image if a low res stream was specified.
 	stream_ = app_->LoresStream() ? app_->GetMainStream() : nullptr;
 }
 
-void ObjectDetectDrawCvStage::Read(boost::property_tree::ptree const &params)
-{
+void ObjectDetectDrawCvStage::Read(boost::property_tree::ptree const &params) {
 	line_thickness_ = params.get<int>("line_thickness", 1);
 	font_size_ = params.get<double>("font_size", 1.0);
 }
 
-bool ObjectDetectDrawCvStage::Process(CompletedRequestPtr &completed_request)
-{
+bool ObjectDetectDrawCvStage::Process(CompletedRequestPtr &completed_request) {
 	if (!stream_)
 		return false;
 
@@ -74,9 +66,17 @@ bool ObjectDetectDrawCvStage::Process(CompletedRequestPtr &completed_request)
 	Scalar colour = Scalar(255, 255, 255);
 	int font = FONT_HERSHEY_SIMPLEX;
 
-	for (auto &detection : detections)
-	{
-		Rect r(detection.box.x, detection.box.y, detection.box.width, detection.box.height);
+	std::cout << "Object detect draw cv! Number of detections: " << detections.size() << std::endl;
+
+	for (auto &detection : detections) {
+		// int origX = detection.box.x;
+		// int origY = detection.box.y;
+		// int origW = detection.box.width;
+		// int origH = detection.box.height;
+
+		std::cout << "detection: " << detection.toString() << std::endl;
+
+		Rect r(500, 700, 100, 100);
 		rectangle(image, r, colour, line_thickness_);
 		std::stringstream text_stream;
 		text_stream << detection.name << " " << (int)(detection.confidence * 100) << "%";
