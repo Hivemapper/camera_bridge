@@ -185,9 +185,9 @@ MjpegEncoder::~MjpegEncoder() {
 
 void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height,
                                 unsigned int stride, int64_t timestamp_us, libcamera::ControlList metadata) {
-    int32_t newExpoTime = metadata.get(libcamera::controls::ExposureTime);
-    float   newAlogGain = metadata.get(libcamera::controls::AnalogueGain);
-    float   newDigiGain = metadata.get(libcamera::controls::DigitalGain);
+    int32_t newExpoTime = *metadata.get(libcamera::controls::ExposureTime);
+    float   newAlogGain = *metadata.get(libcamera::controls::AnalogueGain);
+    float   newDigiGain = *metadata.get(libcamera::controls::DigitalGain);
 
     EncodeItem item = { mem,
                         size,
