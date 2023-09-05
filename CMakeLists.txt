@@ -49,7 +49,7 @@ add_subdirectory(network)
 add_subdirectory(post_processing_stages)
 
 project(libcamera-bridge)
-add_executable(libcamera-bridge app.cpp)
+add_executable(libcamera-bridge app.cpp post_processing_stages/inference.cpp post_processing_stages/inference.h post_processing_stages/onxx_stage.cpp post_processing_stages/onxx_stage.h)
 target_link_libraries(libcamera-bridge libcamera_app encoders network)
 
 set(EXECUTABLES libcamera-bridge)

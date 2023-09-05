@@ -11,11 +11,9 @@
 
 #include <libcamera/geometry.h>
 
-struct Detection
-{
+struct Detection {
 	Detection(int c, const std::string &n, float conf, int x, int y, int w, int h)
-		: category(c), name(n), confidence(conf), box(x, y, w, h)
-	{
+		: category(c), name(n), confidence(conf), box(x, y, w, h){
 	}
 	int category;
 	std::string name;

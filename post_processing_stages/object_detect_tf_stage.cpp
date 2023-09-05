@@ -10,7 +10,6 @@
 
 using Rectangle = libcamera::Rectangle;
 
-// TODO: get this data from the config files
 constexpr int WIDTH = 640; // 300 is for detect.tflite
 constexpr int HEIGHT = 640; // 300 is for detect.tflite
 
@@ -194,7 +193,7 @@ void ObjectDetectTfStage::interpretOutputs() {
 
                     // Take the box with the higher confidence.
                     if (detection.confidence > prev_detection.confidence) {
-                        prev_detection = detection;   
+                        prev_detection = detection;
                     }
 
                     overlapped = true;
@@ -213,77 +212,6 @@ void ObjectDetectTfStage::interpretOutputs() {
         }
     }
 }
-
-//void ObjectDetectTfStage::interpretOutputs()
-//{
-//    std::cout << " ObjectDetectTfStage::interpretOutputs" << std::endl;
-//
-//    //todo: work with silvio to decode output, need tenser flow model
-//
-//	int box_index = interpreter_->outputs()[0];
-//	int class_index = interpreter_->outputs()[1];
-//	int score_index = interpreter_->outputs()[2];
-//	int num_detections = interpreter_->tensor(box_index)->dims->data[1];
-//	float *boxes = interpreter_->tensor(box_index)->data.f;
-//	float *scores = interpreter_->tensor(score_index)->data.f;
-//	float *classes = interpreter_->tensor(class_index)->data.f;
-//
-//	output_results_.clear();
-//
-//	for (int i = 0; i < num_detections; i++)
-//	{
-//		if (scores[i] < config()->confidence_threshold)
-//			continue;
-//
-//		// The coords in the WIDTH x HEIGHT image fed to the network are:
-//		int y = std::clamp<int>(HEIGHT * boxes[i * 4 + 0], 0, HEIGHT);
-//		int x = std::clamp<int>(WIDTH * boxes[i * 4 + 1], 0, WIDTH);
-//		int h = std::clamp<int>(HEIGHT * boxes[i * 4 + 2] - y, 0, HEIGHT);
-//		int w = std::clamp<int>(WIDTH * boxes[i * 4 + 3] - x, 0, WIDTH);
-//		// The network is fed a crop from the lores (if that was too large), so the coords
-//		// in the full lores image are:
-//		y += (lores_h_ - HEIGHT) / 2;
-//		x += (lores_w_ - WIDTH) / 2;
-//		// The lores is a pure scaling of the main image (squishing if the aspect ratios
-//		// don't match), so:
-//		y = y * main_h_ / lores_h_;
-//		x = x * main_w_ / lores_w_;
-//		h = h * main_h_ / lores_h_;
-//		w = w * main_w_ / lores_w_;
-//
-//		int c = classes[i];
-//		Detection detection(c, labels_[c], scores[i], x, y, w, h);
-//
-//		// Before adding this detection to the results, see if it overlaps an existing one.
-//		bool overlapped = false;
-//		for (auto &prev_detection : output_results_)
-//		{
-//			if (prev_detection.category == c)
-//			{
-//				unsigned int prev_area = area(prev_detection.box);
-//				unsigned int new_area = area(detection.box);
-//				unsigned int overlap = area(prev_detection.box.boundedTo(detection.box));
-//				if (overlap > config()->overlap_threshold * prev_area ||
-//					overlap > config()->overlap_threshold * new_area)
-//				{
-//					// Take the box with the higher confidence.
-//					if (detection.confidence > prev_detection.confidence)
-//						prev_detection = detection;
-//					overlapped = true;
-//					break;
-//				}
-//			}
-//		}
-//		if (!overlapped)
-//			output_results_.push_back(detection);
-//	}
-//
-//	if (config()->verbose)
-//	{
-//		for (auto &detection : output_results_)
-//			std::cerr << detection.toString() << std::endl;
-//	}
-//}
 
 static PostProcessingStage *Create(LibcameraApp *app) {
     return new ObjectDetectTfStage(app);
