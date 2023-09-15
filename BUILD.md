@@ -117,6 +117,13 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local ..
 make
 sudo make install
 ```
+## FFmpeg-n4.4.4
+```
+./configure --prefix=/usr/local
+make
+make install
+```
+
 
 # Finally the Camera Bridge!
 ```shell
