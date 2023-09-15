@@ -119,6 +119,8 @@ sudo make install
 ```
 ## FFmpeg-n4.4.4
 ```
+??? sudo apt-get install libavformat-dev
+
 ./configure --prefix=/usr/local
 make
 make install
