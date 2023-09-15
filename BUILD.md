@@ -78,7 +78,7 @@ sudo apt-get install libjpeg-dev
 ```shell
 git clone https://git.linuxtv.org/libcamera.git
 cd libcamera
-git checkout 1966b9a58436fab51f8270aad6a228b935e4fac4
+git checkout v0.0.4
 meson build
 sudo ninja -C build install
 ```
