@@ -8,15 +8,18 @@
 #include <chrono>
 #include <iostream>
 
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavutil/pixdesc.h>
-#include <libavutil/hwcontext.h>
-#include <libavutil/opt.h>
-#include <libavutil/avassert.h>
-#include <libavutil/imgutils.h>
+//extern "C"
+//{
+//#include <libavcodec/avcodec.h>
+//
+//#include <libavutil/pixdesc.h>
+//#include <libavutil/hwcontext.h>
+//#include <libavutil/opt.h>
+//#include <libavutil/avassert.h>
+//#include <libavutil/imgutils.h>
+//}
 
-#include "libswscale/swscale.h"
+
 
 #include <jpeglib.h>
 #include <libyuv.h>
@@ -358,148 +361,148 @@ void MjpegEncoder::createBuffer(struct jpeg_compress_struct &cinfo, EncodeItem &
 
 }
 
-void MjpegEncoder::encodeJPEG(struct jpeg_compress_struct &cinfo, uint8_t *&encoded_buffer, size_t &buffer_len, int num) {
-    AVPixelFormat format = AV_PIX_FMT_YUV420P;
-//    int buffer_size = av_image_get_buffer_size(format, crop_width_, crop_height_, 1);
-//    uint8_t * buffer = (uint8_t *)av_malloc(buffer_size * sizeof(uint8_t));
-//    memset(buffer, 1, buffer_size);
-
-
-    //todo: ??????
-    uint8_t *frameBuffer[4];
-    int      src_linesize[4];
-    av_image_fill_arrays(frameBuffer, src_linesize, cropBuffer_[num], format, crop_width_, crop_height_, 1);
-
-    AVFrame * frame = av_frame_alloc();
-    frame->width = crop_width_;
-    frame->height = crop_height_;
-    frame->format = format;
-
-    av_frame_get_buffer(frame, 0);
-    av_image_copy(frame->data, frame->linesize,
-                  const_cast<const uint8_t**>(frameBuffer), const_cast<const int*>(src_linesize),
-                  format, crop_width_, crop_height_);
-    av_free(cropBuffer_[num]); //todo: that look weird
-
-//    AVOutputFormat *avOutputFormat;
-
-    //JPEG Time ...
-    AVCodec *jpegCodec = avcodec_find_encoder(AV_CODEC_ID_JPEG2000);
-    assert(!jpegCodec);
-
-    AVCodecContext *jpegContext = avcodec_alloc_context3(jpegCodec);
-    assert(!jpegContext);
-
-    jpegContext->pix_fmt = AV_PIX_FMT_YUV420P;
-    jpegContext->width = crop_width_;
-    jpegContext->height = crop_height_;
-
-    assert(avcodec_open2(jpegContext, jpegCodec, NULL) < 0);
-
-    FILE *JPEGFile;
-    char JPEGFName[256];
-    AVPacket *packet = {};
-    av_new_packet(packet, 0);
-    int gotFrame = 0;
-
-    assert(avcodec_encode_video2(jpegContext, &packet, pFrame, &gotFrame) < 0);
-    sprintf(JPEGFName, "dvr-%06d.jpg", gotFrame);
-    JPEGFile = fopen(JPEGFName, "wb");
-    fwrite(packet->data, 1, packet->size, JPEGFile);
-    fclose(JPEGFile);
-//    av_free_packet(&packet); //todo: will this create a leak?
-    avcodec_close(jpegContext);
-
-
-//    AVFormatContext *avFrameContext;
-//    AVStream *avStream;
-//    AVCodecContext *avCodecContext;
-//    AVCodec *avCodec;
-//    AVFrame *frame;
-//    AVPacket pkt;
-
-//    pFormatCtx          =   avformat_alloc_context();
-//    fmt             =   NULL;
-//    fmt             =   av_guess_format("mjpeg",NULL,NULL);
-//    pFormatCtx->oformat     =   fmt;
-//
-//    video_st = avformat_new_stream(pFormatCtx, 0);
-//    if (video_st==NULL)        return -1;
-//
-//    pCodecCtx               =   video_st->codec;
-//    pCodecCtx->codec_id     =   fmt->video_codec;
-//    pCodecCtx->codec_type   =   AVMEDIA_TYPE_VIDEO;
-//    pCodecCtx->pix_fmt      =   AV_PIX_FMT_YUVJ422P;
-//
-//    pCodecCtx->width        =   crop_width_;
-//    pCodecCtx->height       =   crop_height_;
-//
-//    pCodecCtx->time_base.num = 1;
-//    pCodecCtx->time_base.den = 1;//25;
-//
-//    //Output some information
-//    av_dump_format(pFormatCtx, 0, out_file, 1);
-//
-//    picture         =   av_frame_alloc();
-//    size            =   avpicture_get_size(pCodecCtx->pix_fmt, crop_width_, crop_height_);
-//    picture_buf     =   (uint8_t *)av_malloc(size);
-//
-//    avpicture_fill((AVPicture *)picture, picture_buf, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height);
-}
-
 //void MjpegEncoder::encodeJPEG(struct jpeg_compress_struct &cinfo, uint8_t *&encoded_buffer, size_t &buffer_len, int num) {
-//    (void) num;
-//
-//    //----------------------------------------------
-//    //----------------------------------------------
-//    // OUT
-//    //----------------------------------------------
-//    //----------------------------------------------
-//    uint8_t *out_Y = (uint8_t *) cropBuffer_[num];
-//    unsigned int out_stride = crop_stride_;
-//    int out_half_stride = crop_stride2_;
-//
-//    uint8_t *out_U = (uint8_t *) out_Y + crop_y_size_;
-//    uint8_t *out_V = (uint8_t *) out_U + crop_uv_size_;
-//
-//    uint8_t *Y_max = out_Y + crop_y_size_ - 1;
-//    uint8_t *U_max = out_U + crop_uv_size_ - 1;
-//    uint8_t *V_max = out_V + crop_uv_size_ - 1;
-//
-//    cinfo.image_width = crop_width_;
-//    cinfo.image_height = crop_height_;
-//    cinfo.input_components = 3;
-//    cinfo.in_color_space = JCS_YCbCr;
-//    cinfo.restart_interval = 0;
-//
-//    jpeg_set_defaults(&cinfo);
-//    cinfo.raw_data_in = TRUE;
-//    jpeg_set_quality(&cinfo, options_->quality, TRUE);
-//    encoded_buffer = nullptr;
-//    buffer_len = 0;
-//    jpeg_mem_len_t jpeg_mem_len;
-//    jpeg_mem_dest(&cinfo, &encoded_buffer, &jpeg_mem_len);
-//    jpeg_start_compress(&cinfo, TRUE);
-//
-//    JSAMPROW y_rows[16];
-//    JSAMPROW u_rows[8];
-//    JSAMPROW v_rows[8];
+//    AVPixelFormat format = AV_PIX_FMT_YUV420P;
+////    int buffer_size = av_image_get_buffer_size(format, crop_width_, crop_height_, 1);
+////    uint8_t * buffer = (uint8_t *)av_malloc(buffer_size * sizeof(uint8_t));
+////    memset(buffer, 1, buffer_size);
 //
 //
-//    for (uint8_t *Y_row = out_Y, *U_row = out_U, *V_row = out_V; cinfo.next_scanline < crop_height_;) {
-//        for (int i = 0; i < 16; i++, Y_row += out_stride)
-//            y_rows[i] = std::min(Y_row, Y_max);
-//        for (int i = 0; i < 8; i++, U_row += out_half_stride, V_row += out_half_stride)
-//            u_rows[i] = std::min(U_row, U_max), v_rows[i] = std::min(V_row, V_max);
+//    //todo: ??????
+//    uint8_t *frameBuffer[4];
+//    int      src_linesize[4];
+//    av_image_fill_arrays(frameBuffer, src_linesize, cropBuffer_[num], format, crop_width_, crop_height_, 1);
 //
-//        JSAMPARRAY rows[] = {y_rows, u_rows, v_rows};
-//        jpeg_write_raw_data(&cinfo, rows, 16);
-//    }
+//    AVFrame * frame = av_frame_alloc();
+//    frame->width = crop_width_;
+//    frame->height = crop_height_;
+//    frame->format = format;
 //
-//    jpeg_finish_compress(&cinfo);
-//    buffer_len = jpeg_mem_len;
-////    free(crop_i420_c);
+//    av_frame_get_buffer(frame, 0);
+//    av_image_copy(frame->data, frame->linesize,
+//                  const_cast<const uint8_t**>(frameBuffer), const_cast<const int*>(src_linesize),
+//                  format, crop_width_, crop_height_);
+//    av_free(cropBuffer_[num]); //todo: that look weird
+//
+////    AVOutputFormat *avOutputFormat;
+//
+//    //JPEG Time ...
+//    AVCodec *jpegCodec = avcodec_find_encoder(AV_CODEC_ID_JPEG2000);
+//    assert(!jpegCodec);
+//
+//    AVCodecContext *jpegContext = avcodec_alloc_context3(jpegCodec);
+//    assert(!jpegContext);
+//
+//    jpegContext->pix_fmt = AV_PIX_FMT_YUV420P;
+//    jpegContext->width = crop_width_;
+//    jpegContext->height = crop_height_;
+//
+//    assert(avcodec_open2(jpegContext, jpegCodec, NULL) < 0);
+//
+//    FILE *JPEGFile;
+//    char JPEGFName[256];
+//    AVPacket *packet = {};
+//    av_new_packet(packet, 0);
+//    int gotFrame = 0;
+//
+//    assert(avcodec_encode_video2(jpegContext, &packet, pFrame, &gotFrame) < 0);
+//    sprintf(JPEGFName, "dvr-%06d.jpg", gotFrame);
+//    JPEGFile = fopen(JPEGFName, "wb");
+//    fwrite(packet->data, 1, packet->size, JPEGFile);
+//    fclose(JPEGFile);
+////    av_free_packet(&packet); //todo: will this create a leak?
+//    avcodec_close(jpegContext);
+//
+//
+////    AVFormatContext *avFrameContext;
+////    AVStream *avStream;
+////    AVCodecContext *avCodecContext;
+////    AVCodec *avCodec;
+////    AVFrame *frame;
+////    AVPacket pkt;
+//
+////    pFormatCtx          =   avformat_alloc_context();
+////    fmt             =   NULL;
+////    fmt             =   av_guess_format("mjpeg",NULL,NULL);
+////    pFormatCtx->oformat     =   fmt;
+////
+////    video_st = avformat_new_stream(pFormatCtx, 0);
+////    if (video_st==NULL)        return -1;
+////
+////    pCodecCtx               =   video_st->codec;
+////    pCodecCtx->codec_id     =   fmt->video_codec;
+////    pCodecCtx->codec_type   =   AVMEDIA_TYPE_VIDEO;
+////    pCodecCtx->pix_fmt      =   AV_PIX_FMT_YUVJ422P;
+////
+////    pCodecCtx->width        =   crop_width_;
+////    pCodecCtx->height       =   crop_height_;
+////
+////    pCodecCtx->time_base.num = 1;
+////    pCodecCtx->time_base.den = 1;//25;
+////
+////    //Output some information
+////    av_dump_format(pFormatCtx, 0, out_file, 1);
+////
+////    picture         =   av_frame_alloc();
+////    size            =   avpicture_get_size(pCodecCtx->pix_fmt, crop_width_, crop_height_);
+////    picture_buf     =   (uint8_t *)av_malloc(size);
+////
+////    avpicture_fill((AVPicture *)picture, picture_buf, pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height);
 //}
+
+void MjpegEncoder::encodeJPEG(struct jpeg_compress_struct &cinfo, uint8_t *&encoded_buffer, size_t &buffer_len, int num) {
+    (void) num;
+
+    //----------------------------------------------
+    //----------------------------------------------
+    // OUT
+    //----------------------------------------------
+    //----------------------------------------------
+    uint8_t *out_Y = (uint8_t *) cropBuffer_[num];
+    unsigned int out_stride = crop_stride_;
+    int out_half_stride = crop_stride2_;
+
+    uint8_t *out_U = (uint8_t *) out_Y + crop_y_size_;
+    uint8_t *out_V = (uint8_t *) out_U + crop_uv_size_;
+
+    uint8_t *Y_max = out_Y + crop_y_size_ - 1;
+    uint8_t *U_max = out_U + crop_uv_size_ - 1;
+    uint8_t *V_max = out_V + crop_uv_size_ - 1;
+
+    cinfo.image_width = crop_width_;
+    cinfo.image_height = crop_height_;
+    cinfo.input_components = 3;
+    cinfo.in_color_space = JCS_YCbCr;
+    cinfo.restart_interval = 0;
+
+    jpeg_set_defaults(&cinfo);
+    cinfo.raw_data_in = TRUE;
+    jpeg_set_quality(&cinfo, options_->quality, TRUE);
+    encoded_buffer = nullptr;
+    buffer_len = 0;
+    jpeg_mem_len_t jpeg_mem_len;
+    jpeg_mem_dest(&cinfo, &encoded_buffer, &jpeg_mem_len);
+    jpeg_start_compress(&cinfo, TRUE);
+
+    JSAMPROW y_rows[16];
+    JSAMPROW u_rows[8];
+    JSAMPROW v_rows[8];
+
+
+    for (uint8_t *Y_row = out_Y, *U_row = out_U, *V_row = out_V; cinfo.next_scanline < crop_height_;) {
+        for (int i = 0; i < 16; i++, Y_row += out_stride)
+            y_rows[i] = std::min(Y_row, Y_max);
+        for (int i = 0; i < 8; i++, U_row += out_half_stride, V_row += out_half_stride)
+            u_rows[i] = std::min(U_row, U_max), v_rows[i] = std::min(V_row, V_max);
+
+        JSAMPARRAY rows[] = {y_rows, u_rows, v_rows};
+        jpeg_write_raw_data(&cinfo, rows, 16);
+    }
+
+    jpeg_finish_compress(&cinfo);
+    buffer_len = jpeg_mem_len;
+//    free(crop_i420_c);
+}
 
 
 void
@@ -592,6 +595,7 @@ void MjpegEncoder::encodeThread(int num) {
     jpeg_create_compress(&cinfoPrev);
     typedef std::chrono::duration<float, std::milli> duration;
 
+    duration exif_time(0);
     duration buffer_time(0);
     duration encoding_time(0);
     duration scaling_time(0);
@@ -633,10 +637,13 @@ void MjpegEncoder::encodeThread(int num) {
         size_t buffer_prev_len = 0;
         size_t exif_buffer_len = 0;
 
-        auto start_buffer_time = std::chrono::high_resolution_clock::now();
+        auto start_time = std::chrono::high_resolution_clock::now();
         {
+            auto start_exif_time = std::chrono::high_resolution_clock::now();
             CreateExifData(encode_item, exif_buffer, exif_buffer_len);
+            exif_time = (std::chrono::high_resolution_clock::now() - start_exif_time);
 
+            auto start_buffer_time = std::chrono::high_resolution_clock::now();
             createBuffer(cinfoMain, encode_item, num);
             buffer_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
 
@@ -671,10 +678,11 @@ void MjpegEncoder::encodeThread(int num) {
                 true);
 
         output_time = (std::chrono::high_resolution_clock::now() - start_output_time);
-        total_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
+        total_time = (std::chrono::high_resolution_clock::now() - start_time);
 
         if (options_->verbose) {
             std::cout << "Frame processed in: " << total_time.count()
+                      << " exif: " << exif_time.count()
                       << " buffer: " << buffer_time.count()
                       << " 4k: " << encoding_time.count()
                       << " 2k: " << scaling_time.count()

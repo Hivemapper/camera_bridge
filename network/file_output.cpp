@@ -80,15 +80,15 @@ void FileOutput::outputBuffer(void *mem,
     }
     std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir4K_, prefix_, tv.tv_sec,
                                            tv.tv_usec, postfix_);
-    if (!dir4K_.empty()) {
+    if (!dir4K_.empty() && !options_->skip_4k) {
         wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
     }
     if (!dirUSB_.empty()) {
         std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirUSB_, prefix_, tv.tv_sec,
                                               tv.tv_usec, postfix_);
-        wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
+        wrapAndWrite(prevMem, secFileName, size, exifMem, exifSize, 1);
     }
-    if (!dir2K_.empty()) {
+    if (!dir2K_.empty() && !options_->skip_2k) {
         std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir2K_, prefix_, tv.tv_sec,
                                                tv.tv_usec, postfix_);
         wrapAndWrite(prevMem, prevFileName, prevSize, exifMem, exifSize, 2);
