@@ -20,7 +20,7 @@
 //}
 
 
-
+#include <turbojpeg.h>
 #include <jpeglib.h>
 #include <libyuv.h>
 #include <libexif/exif-data.h>
@@ -510,6 +510,13 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
                                    int num) {
     (void) num;
 
+    typedef std::chrono::duration<float, std::milli> duration;
+    duration scale_time(0);
+    duration jpeg_time(0);
+    duration jpeg_write_time(0);
+    duration total_time(0);
+
+    auto start_time = std::chrono::high_resolution_clock::now();
     uint8_t *crop_Y = (uint8_t *) cropBuffer_[num];
     uint8_t *crop_U = (uint8_t *) crop_Y + crop_y_size_;
     uint8_t *crop_V = (uint8_t *) crop_U + crop_uv_size_;
@@ -530,10 +537,11 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
     uint8_t *scale_U = (uint8_t *) scale_Y + scale_y_size;
     uint8_t *scale_V = (uint8_t *) scale_U + scale_uv_size;
 
-    uint8_t *scale_Y_max = scale_Y + scale_y_size - 1;
-    uint8_t *scale_U_max = scale_U + scale_uv_size - 1;
-    uint8_t *scale_V_max = scale_V + scale_uv_size - 1;
+//    uint8_t *scale_Y_max = scale_Y + scale_y_size - 1;
+//    uint8_t *scale_U_max = scale_U + scale_uv_size - 1;
+//    uint8_t *scale_V_max = scale_V + scale_uv_size - 1;
 
+    auto start_scale_time = std::chrono::high_resolution_clock::now();
     libyuv::I420Scale(
             crop_Y, crop_stride_,
             crop_U, crop_stride2_,
@@ -545,41 +553,79 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
             scale_width, scale_height,
             libyuv::kFilterBilinear
     );
+    scale_time = (std::chrono::high_resolution_clock::now() - start_scale_time);
 
-    cinfo.image_width = scale_width;
-    cinfo.image_height = scale_height;
-    cinfo.input_components = 3;
-    cinfo.in_color_space = JCS_YCbCr;
-    cinfo.restart_interval = 0;
+    auto start_jpeg_time = std::chrono::high_resolution_clock::now();
 
-    jpeg_set_defaults(&cinfo);
-    cinfo.raw_data_in = TRUE;
-    jpeg_set_quality(&cinfo, options_->scale_quality, TRUE);
+    tjhandle tjh;
+    tjh = tjInitCompress();
+    assert(NULL 1= tjh );
+
+    unsigned long buf_size;
+    buf_size = tjBufSizeYUV2( scale_width, 2, scale_height, TJSAMP_420);
+    std::cout << "tjCompressFromYUV buf_size: " << buf_size << std::endl;
+//    jpegBuf = tjAlloc(buf_size)
+    tjAlloc(buf_size);
     encoded_buffer = nullptr;
-    buffer_len = 0;
-    jpeg_mem_len_t jpeg_mem_len;
-    jpeg_mem_dest(&cinfo, &encoded_buffer, &jpeg_mem_len);
-    jpeg_start_compress(&cinfo, TRUE);
+    unsigned long jpegSize;
 
-    JSAMPROW y_rows[16];
-    JSAMPROW u_rows[8];
-    JSAMPROW v_rows[8];
-
-    for (uint8_t *Y_row = scale_Y, *U_row = scale_U, *V_row = scale_V; cinfo.next_scanline < scale_height;) {
-        for (int i = 0; i < 16; i++, Y_row += scale_y_stride)
-            y_rows[i] = std::min(Y_row, scale_Y_max);
-        for (int i = 0; i < 8; i++, U_row += scale_uv_stride, V_row += scale_uv_stride) {
-            u_rows[i] = std::min(U_row, scale_U_max);
-            v_rows[i] = std::min(V_row, scale_V_max);
-        }
-
-        JSAMPARRAY rows[] = {y_rows, u_rows, v_rows};
-        jpeg_write_raw_data(&cinfo, rows, 16);
+//    PADDING = 2
+    if( tjCompressFromYUVPlanes( tjh, scale_Y, scale_width, scale_y_stride, scale_height,
+                       TJSAMP_420, &encoded_buffer, &jpegSize, options_->scale_quality,
+                       TJFLAG_NOREALLOC )) {
+        std::cout << "tjCompressFromYUV err: " << tjGetErrorStr() << std::endl;
     }
 
-    jpeg_finish_compress(&cinfo);
-    buffer_len = jpeg_mem_len;
-    free(scaleBuffer);
+    std::cout << "tjCompressFromYUV jpeg size: " << jpegSize << std::endl;
+
+//    cinfo.image_width = scale_width;
+//    cinfo.image_height = scale_height;
+//    cinfo.input_components = 3;
+//    cinfo.in_color_space = JCS_YCbCr;
+//    cinfo.restart_interval = 0;
+//
+//    jpeg_set_defaults(&cinfo);
+//    cinfo.raw_data_in = TRUE;
+//    jpeg_set_quality(&cinfo, options_->scale_quality, TRUE);
+//    encoded_buffer = nullptr;
+//    buffer_len = 0;
+//    jpeg_mem_len_t jpeg_mem_len;
+//    jpeg_mem_dest(&cinfo, &encoded_buffer, &jpeg_mem_len);
+//    jpeg_start_compress(&cinfo, TRUE);
+//
+//    JSAMPROW y_rows[16];
+//    JSAMPROW u_rows[8];
+//    JSAMPROW v_rows[8];
+//
+//    auto start_jpeg_write_time = std::chrono::high_resolution_clock::now();
+//    for (uint8_t *Y_row = scale_Y, *U_row = scale_U, *V_row = scale_V; cinfo.next_scanline < scale_height;) {
+//        for (int i = 0; i < 16; i++, Y_row += scale_y_stride)
+//            y_rows[i] = std::min(Y_row, scale_Y_max);
+//        for (int i = 0; i < 8; i++, U_row += scale_uv_stride, V_row += scale_uv_stride) {
+//            u_rows[i] = std::min(U_row, scale_U_max);
+//            v_rows[i] = std::min(V_row, scale_V_max);
+//        }
+//
+//        JSAMPARRAY rows[] = {y_rows, u_rows, v_rows};
+//        jpeg_write_raw_data(&cinfo, rows, 16);
+//    }
+//
+//    jpeg_write_time = (std::chrono::high_resolution_clock::now() - start_jpeg_write_time);
+//
+//    jpeg_finish_compress(&cinfo);
+//    buffer_len = jpeg_mem_len;
+//    free(scaleBuffer);
+//
+    jpeg_time = (std::chrono::high_resolution_clock::now() - start_jpeg_time);
+    total_time = (std::chrono::high_resolution_clock::now() - start_time);
+
+    if (options_->verbose) {
+        std::cout << "2K processed in: " << total_time.count()
+                << " scale: " << scale_time.count()
+//                << " jpeg_write: " << jpeg_write_time.count()
+                << " jpeg: " << jpeg_time.count()
+                << std::endl;
+    }
 }
 
 void MjpegEncoder::encodeThread(int num) {
