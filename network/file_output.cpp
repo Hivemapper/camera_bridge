@@ -91,7 +91,7 @@ void FileOutput::outputBuffer(void *mem,
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
         } else {
             if (!options_->skip_2k) {
-                wrapAndWrite(prevMem, secFileName, size, exifMem, exifSize, 1);
+                wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
             }
         }
     }
