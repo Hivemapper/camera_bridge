@@ -6,7 +6,7 @@ include_directories(${CMAKE_SOURCE_DIR} )
 link_directories(${CMAKE_SOURCE_DIR} )
 
 add_library(encoders encoder.cpp mjpeg_encoder.cpp)
-target_link_libraries(encoders jpeg yuv exif turbojpeg)
+target_link_libraries(encoders jpeg yuv exif)
 
 install(TARGETS encoders LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

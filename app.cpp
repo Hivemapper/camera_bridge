@@ -123,6 +123,7 @@ static void execute_stream(LibcameraEncoder &app, VideoOptions *options)
 
 int main(int argc, char *argv[])
 {
+  std::cout << "Welcome "<< std::endl;
   try
   {
     LibcameraEncoder app;
