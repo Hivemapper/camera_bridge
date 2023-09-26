@@ -1,21 +1,10 @@
-# Build Camera Bridge from docker
-```shell
- docker run --name build-camera-bridge --mount type=bind,source="$(pwd)/..",target=/devel/camera-bridge build-camera-bridge
- docker exec -it build-camera-bridge bash
-```
-Once in the container ...
-```shell
-cd /devel/camera-bridge
-mkdir build
-cd build
-cmake ..
-make
-```
-
 # Setup to build Camera Bridge for linux and raspberry pi
 ```shell
 sudo apt update && sudo apt upgrade
 ```
+
+# _**WANING! If you change library version of the build root you need to update the following**_
+
 
 ## Install cmake and build essential
 ```shell
