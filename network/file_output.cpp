@@ -73,6 +73,7 @@ void FileOutput::outputBuffer(void *mem,
     struct timeval tv;
     gettimeofday(&tv, NULL);
     static int32_t frameNumTrun = 0;
+    time_t start, end; 
 
     try {
         tv = getAdjustedTime(timestamp_us);
@@ -82,6 +83,19 @@ void FileOutput::outputBuffer(void *mem,
     }
     std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir4K_, prefix_, tv.tv_sec,
                                            tv.tv_usec, postfix_);
+
+
+    time(&start);
+    if (!dir2K_.empty() && !options_->skip_2k) {
+        std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir2K_, prefix_, tv.tv_sec,
+                                               tv.tv_usec, postfix_);
+        wrapAndWrite(prevMem, prevFileName, prevSize, exifMem, exifSize, 2);
+    }
+    time(&end);
+
+    cout << "Time taken by functionnnnnnnnnnnn for camera write: "
+         << fixed << setprecision(10) << (end - start) << endl;
+
     if (!dir4K_.empty() && !options_->skip_4k) {
         wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
     }
@@ -94,6 +108,7 @@ void FileOutput::outputBuffer(void *mem,
         }
         skippedLastFrameForUSB += 1;
         if(skippedLastFrameForUSB % 5 == 0){
+            time(&start);
             if (!options_->skip_4k) {
                 wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
             } else {
@@ -101,13 +116,10 @@ void FileOutput::outputBuffer(void *mem,
                     wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
                 }
             }
+            time(&end);
+            cout << "Time taken by function forrrrrrrrrrrrrrrrrrrrrrr usb write: "
+                 << fixed << setprecision(10) << (end - start) << endl;
         }
-    }
-
-    if (!dir2K_.empty() && !options_->skip_2k) {
-        std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir2K_, prefix_, tv.tv_sec,
-                                               tv.tv_usec, postfix_);
-        wrapAndWrite(prevMem, prevFileName, prevSize, exifMem, exifSize, 2);
     }
     //After files are written. Update the latest marker
     {
