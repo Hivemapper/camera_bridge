@@ -21,7 +21,7 @@
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
 
-const std::string PARTITION_USB="/mnt/usb";
+const std::string PARTITION_USB="/media/usb0";
 const int MIN_FREE_SPACE_USB=100000000;
 const int MAX_FILES=20000;
 
@@ -70,25 +70,16 @@ FileOutput::~FileOutput() {
 }
 
 void FileOutput::collectExistingFilenames() {
-    std::vector<std::string> directoryPaths = {dir2K_, dir4K_, dirUSB_};
-    std::set<std::string> foundFiles;
-
-    for (const std::string &directoryPath : directoryPaths) {
-        for (const auto &entry : std::filesystem::directory_iterator(directoryPath)) {
-            const std::string &file = entry.path();
-            if (foundFiles.find(file) == foundFiles.end()){
-                foundFiles.insert(file);
-                fileNameQueue_.push_back(file);
-            }
-        }
+    for (const auto &entry : std::filesystem::directory_iterator(dirUSB_)) {
+        filesStoredOnUSB_.push_back(entry.path());
     }
 }
 
 void FileOutput::removeLast(size_t numFiles) {
-    numFiles = std::min(numFiles, fileNameQueue_.size());
+    numFiles = std::min(numFiles, filesStoredOnUSB_.size());
     while (numFiles) {
-        std::string fileName = fileNameQueue_.front();
-        fileNameQueue_.pop_front();
+        std::string fileName = filesStoredOnUSB_.front();
+        filesStoredOnUSB_.pop_front();
 
         int status = std::remove(fileName.c_str());
         if (status != 0) {
@@ -114,7 +105,7 @@ void FileOutput::outputBuffer(void *mem,
     std::cout << "space: " << std::filesystem::space(PARTITION_USB).free << std::endl;
 
     if (std::filesystem::space(PARTITION_USB).free < MIN_FREE_SPACE_USB 
-        || fileNameQueue_.size() > MAX_FILES) {
+        || filesStoredOnUSB_.size() > MAX_FILES) {
         if (options_->verbose) {
             std::cout << "Out of space, removing older image files." << std::endl;
         }
@@ -138,9 +129,11 @@ void FileOutput::outputBuffer(void *mem,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
+            filesStoredOnUSB_.push_back(secFileName);
         } else {
             if (!options_->skip_2k) {
                 wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
+                filesStoredOnUSB_.push_back(secFileName);
             }
         }
     }
@@ -210,7 +203,6 @@ void FileOutput::wrapAndWrite(void *mem, std::string fullFileName, size_t size,
         }
         fileWritten = true;
     }
-    fileNameQueue_.push_back(fullFileName);
 }
 
 void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,

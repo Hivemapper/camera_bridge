@@ -52,6 +52,6 @@ private:
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
-    std::deque<std::string> fileNameQueue_;
+    std::deque<std::string> filesStoredOnUSB_;
 
 };
