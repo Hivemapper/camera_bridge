@@ -83,6 +83,7 @@ void FileOutput::removeLast(size_t numFiles) {
         filesStoredOnUSB_.pop_front();
 
         int status = std::remove(fileName.c_str());
+        std::cerr << "removed " << fileName << std::endl;
         if (status != 0) {
             std::cerr << "Failed to delete file " << fileName << std::endl;
         }
@@ -103,12 +104,13 @@ void FileOutput::outputBuffer(void *mem,
     gettimeofday(&tv, NULL);
     static int32_t frameNumTrun = 0;
 
-    std::cout << "space: " << std::filesystem::space(PARTITION_USB).free << std::endl;
+    std::cerr << "filesStored: " << filesStoredOnUSB_.size() << std::endl;
+    std::cerr << "space used: " << std::filesystem::space(PARTITION_USB).free << std::endl;
 
     if (std::filesystem::space(PARTITION_USB).free < MIN_FREE_SPACE_USB 
         || filesStoredOnUSB_.size() > MAX_FILES) {
         if (options_->verbose) {
-            std::cout << "Out of space, removing older image files." << std::endl;
+            std::cerr << "Out of space, removing older image files." << std::endl;
         }
         removeLast(5);
     }
