@@ -22,7 +22,8 @@ static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
 
 const std::string PARTITION_USB="/media/usb0";
-const int MIN_FREE_SPACE_USB=100000000;
+// const int MIN_FREE_SPACE_USB=100000000;
+const uintmax_t MIN_FREE_SPACE_USB=124039233536L - 5000L;
 const int MAX_FILES=20000;
 
 
