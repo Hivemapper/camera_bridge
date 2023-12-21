@@ -37,7 +37,7 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
 //    directory_[2] = previewDir_;
 
 
-    std::cerr << "Initializing sizes.." << std::endl;
+    // std::cerr << "Initializing sizes.." << std::endl;
     std::cerr << "what----" << std::endl;
 
     verbose_ = options_->verbose;
