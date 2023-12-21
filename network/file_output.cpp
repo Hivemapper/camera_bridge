@@ -119,6 +119,8 @@ void FileOutput::outputBuffer(void *mem,
     
     const uintmax_t min_free_space = space.capacity - maxUSBUsage_;
     std::cerr << "min free space: " << min_free_space << std::endl;
+    std::cerr << "usb files: " << maxUSBFiles_ << std::endl;
+
     if ((maxUSBUsage_ > 0 && space.free < min_free_space)
         || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
         if (options_->verbose) {
