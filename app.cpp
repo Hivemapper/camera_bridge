@@ -124,6 +124,7 @@ static void execute_stream(LibcameraEncoder &app, VideoOptions *options)
 int main(int argc, char *argv[])
 {
   std::cout << "Welcome Test"<< std::endl;
+  std::cout << "space: " << std::filesystem::space("/media/usb0").free << std::endl;
   try
   {
     LibcameraEncoder app;
