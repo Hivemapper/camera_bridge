@@ -55,7 +55,7 @@ private:
     struct timeval baseTime_;
     std::mutex fileQueueMutex_;
     std::deque<std::string> filesStoredOnUSB_;
-    uint32_t maxUSBUsage_ = 0;
+    uint32_t minUSBFreeSpace_ = 0;
     uint32_t maxUSBFiles_ = 0;
 
 };

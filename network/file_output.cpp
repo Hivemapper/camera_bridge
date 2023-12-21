@@ -42,7 +42,7 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     verbose_ = options_->verbose;
     prefix_ = options_->prefix;
     writeTempFile_ = options_->writeTmp;
-    maxUSBUsage_ = options_->max_usb_usage;
+    minUSBFreeSpace_ = options_->min_usb_free_space;
     maxUSBFiles_ = options_->max_usb_files;
 
     //TODO - Assume jpeg format for now. Otherwise extract
@@ -127,9 +127,9 @@ void FileOutput::outputBuffer(void *mem,
     
 
     std::cerr << "usb files: " << maxUSBFiles_ << std::endl;
-    std::cerr << "usb usage: " << maxUSBUsage_ << std::endl;
+    std::cerr << "usb usage: " << minUSBFreeSpace_ << std::endl;
 
-    if ((maxUSBUsage_ > 0 && space.free < maxUSBUsage_)
+    if ((minUSBFreeSpace_ > 0 && space.free > minUSBFreeSpace_)
         || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
         if (options_->verbose) {
             std::cerr << "Out of space, removing older image files." << std::endl;
