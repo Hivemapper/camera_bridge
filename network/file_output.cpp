@@ -74,6 +74,10 @@ void FileOutput::collectExistingFilenames() {
     for (const auto &entry : std::filesystem::directory_iterator(dirUSB_)) {
         filesStoredOnUSB_.push_back(entry.path());
     }
+    std::cerr << "files stored: " << filesStoredOnUSB_.size() << std::endl;
+    if (filesStoredOnUSB_.size() > 0) {
+        std::cerr << filesStoredOnUSB_.front() << std::endl;
+    }
 }
 
 void FileOutput::removeLast(size_t numFiles) {
