@@ -132,6 +132,12 @@ struct VideoOptions : public Options {
         if (encoding_cfg.contains("crop_offset_from_top")) {
             crop_offset_from_top = encoding_cfg.at("crop_offset_from_top");
         }
+        if (encoding_cfg.contains("max_usb_usage")) {
+            max_usb_usage = encoding_cfg.at("max_usb_usage");
+        }
+        if (encoding_cfg.contains("max_usb_files")) {
+            max_usb_files = encoding_cfg.at("max_usb_files");
+        }
     }
 
     virtual bool JSON_Option_Parse(nlohmann::json new_cfg) override {
@@ -202,5 +208,7 @@ struct VideoOptions : public Options {
         std::cerr << "    split: " << split << std::endl;
         std::cerr << "    segment: " << segment << std::endl;
         std::cerr << "    circular: " << circular << std::endl;
+        std::cerr << "    max_usb_usage: " << max_usb_usage << std::endl;
+        std::cerr << "    max_usb_files: " << max_usb_files << std::endl;
     }
 };
