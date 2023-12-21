@@ -90,7 +90,6 @@ private:
                 throw std::runtime_error("no buffer available to return");
             }
             encode_buffer_queue_.pop(); // drop shared_ptr reference
-            // so i guess we're not re-using these, we're dropping them when we're done.
         }
     }
 

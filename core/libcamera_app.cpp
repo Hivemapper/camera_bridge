@@ -527,19 +527,13 @@ void LibcameraApp::makeRequests() {
     }
 }
 
-// request on camera is complete. It sent back *request
 void LibcameraApp::requestComplete(Request *request) {
     if (request->status() == Request::RequestCancelled) {
         return;
     }
 
-    // store that result in CompletedRequest
     CompletedRequest *r = new CompletedRequest(sequence_++, request->buffers(), request->metadata());
-
-    // ??????
     CompletedRequestPtr payload(r, [this](CompletedRequest *cr) { this->queueRequest(cr); });
-
-    // why?
     known_completed_requests_.insert(r);
     {
         request->reuse();
