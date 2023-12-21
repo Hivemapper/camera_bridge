@@ -69,7 +69,7 @@ FileOutput::~FileOutput() {
 }
 
 void FileOutput::collectExistingFilenames() {
-    fileQueueMutex_.lock();
+    std::lock_guard<std::mutex> lock(fileQueueMutex_);
 
     for (const auto &entry : std::filesystem::directory_iterator(dirUSB_)) {
         filesStoredOnUSB_.push_back(entry.path());
@@ -80,12 +80,10 @@ void FileOutput::collectExistingFilenames() {
     if (filesStoredOnUSB_.size() > 0) {
         std::cerr << filesStoredOnUSB_.front() << std::endl;
     }
-
-    fileQueueMutex_.unlock();
 }
 
 void FileOutput::removeLast(size_t numFiles) {
-    fileQueueMutex_.lock();
+    std::lock_guard<std::mutex> lock(fileQueueMutex_);
 
     numFiles = std::min(numFiles, filesStoredOnUSB_.size());
     while (numFiles) {
@@ -100,8 +98,6 @@ void FileOutput::removeLast(size_t numFiles) {
 
         numFiles--;
     }
-
-    fileQueueMutex_.unlock();
 }
 
 void FileOutput::outputBuffer(void *mem,
@@ -150,16 +146,13 @@ void FileOutput::outputBuffer(void *mem,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
-
-            fileQueueMutex_.lock();
+            std::lock_guard<std::mutex> lock(fileQueueMutex_);
             filesStoredOnUSB_.push_back(secFileName);
-            fileQueueMutex_.unlock();
         } else {
             if (!options_->skip_2k) {
                 wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
-                fileQueueMutex_.lock();
+                std::lock_guard<std::mutex> lock(fileQueueMutex_);
                 filesStoredOnUSB_.push_back(secFileName);
-                fileQueueMutex_.unlock();
             }
         }
     }
