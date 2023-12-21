@@ -129,7 +129,7 @@ void FileOutput::outputBuffer(void *mem,
     std::cerr << "usb files: " << maxUSBFiles_ << std::endl;
     std::cerr << "usb usage: " << minUSBFreeSpace_ << std::endl;
 
-    if ((minUSBFreeSpace_ > 0 && space.free > minUSBFreeSpace_)
+    if ((minUSBFreeSpace_ > 0 && space.free < minUSBFreeSpace_)
         || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
         if (options_->verbose) {
             std::cerr << "Out of space, removing older image files." << std::endl;
