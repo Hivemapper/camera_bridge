@@ -53,5 +53,7 @@ private:
     std::string postfix_;
     struct timeval baseTime_;
     std::deque<std::string> filesStoredOnUSB_;
+    uint32_t maxUSBUsage_ = 0;
+    uint32_t maxUSBFiles_ = 0;
 
 };

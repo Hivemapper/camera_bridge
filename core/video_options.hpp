@@ -66,7 +66,11 @@ struct VideoOptions : public Options {
                 ("segment", value<uint32_t>(&segment)->default_value(0),
                  "Break the recording into files of approximately this many milliseconds")
                 ("circular", value<bool>(&circular)->default_value(false)->implicit_value(true),
-                 "Write output to a circular buffer which is saved on exit");
+                 "Write output to a circular buffer which is saved on exit")
+                ("max_usb_usage", value<uint32_t>(&max_usb_usage)->default_value(0),
+                 "Set maximum usb usage in bytes. Default is no maximum.")
+                ("max_usb_files", value<uint32_t>(&max_usb_files)->default_value(0),
+                 "Set maximum number of files that can be stored. Default is no maximum.");
     }
 
     uint32_t bitrate;
@@ -93,6 +97,8 @@ struct VideoOptions : public Options {
     bool split;
     uint32_t segment;
     bool circular;
+    uint32_t max_usb_usage;
+    uint32_t max_usb_files;
 
     void json_manage_cam_cfg(nlohmann::json camera_cfg) {
         if (camera_cfg.contains("encoding")) {

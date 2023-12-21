@@ -23,8 +23,8 @@ static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
 const std::string PARTITION_USB="/media/usb0";
 // const int MIN_FREE_SPACE_USB=100000000;
-const uintmax_t MIN_FREE_SPACE_USB=124039233536L - 5000L;
-const int MAX_FILES=100;
+// const uintmax_t MIN_FREE_SPACE_USB=124039233536L - 5000L;
+// const int MAX_FILES=100;
 
 
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
@@ -37,12 +37,13 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
 //    directory_[2] = previewDir_;
 
 
-    // std::cerr << "Initializing sizes.." << std::endl;
-    std::cerr << "what----" << std::endl;
+    std::cerr << "Initializing sizes.." << std::endl;
 
     verbose_ = options_->verbose;
     prefix_ = options_->prefix;
     writeTempFile_ = options_->writeTmp;
+    maxUSBUsage_ = options_->max_usb_usage;
+    maxUSBFiles_ = options_->max_usb_files;
 
     //TODO - Assume jpeg format for now. Otherwise extract
     postfix_ = ".jpg";
@@ -65,9 +66,7 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     fileNameGenerator << "latest.txt";
     latestFileName_ = fileNameGenerator.str();
 
-    std::cerr << "before----" << std::endl;
     collectExistingFilenames();
-    std::cerr << "after----" << std::endl;
 }
 
 FileOutput::~FileOutput() {
@@ -77,6 +76,8 @@ void FileOutput::collectExistingFilenames() {
     for (const auto &entry : std::filesystem::directory_iterator(dirUSB_)) {
         filesStoredOnUSB_.push_back(entry.path());
     }
+    std::sort(filesStoredOnUSB_.begin(), filesStoredOnUSB_.end());
+
     std::cerr << "files stored: " << filesStoredOnUSB_.size() << std::endl;
     if (filesStoredOnUSB_.size() > 0) {
         std::cerr << filesStoredOnUSB_.front() << std::endl;
@@ -112,10 +113,14 @@ void FileOutput::outputBuffer(void *mem,
     static int32_t frameNumTrun = 0;
 
     std::cerr << "filesStored: " << filesStoredOnUSB_.size() << std::endl;
-    std::cerr << "space used: " << std::filesystem::space(PARTITION_USB).free << std::endl;
 
-    if (std::filesystem::space(PARTITION_USB).free < MIN_FREE_SPACE_USB 
-        || filesStoredOnUSB_.size() > MAX_FILES) {
+    std::filesystem::space_info space = std::filesystem::space(PARTITION_USB);
+    std::cerr << "space used: " << space.free << std::endl;
+    
+    const uintmax_t min_free_space = space.capacity - maxUSBUsage_;
+    std::cerr << "min free space: " << min_free_space << std::endl;
+    if ((maxUSBUsage_ > 0 && space.free < min_free_space)
+        || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
         if (options_->verbose) {
             std::cerr << "Out of space, removing older image files." << std::endl;
         }
