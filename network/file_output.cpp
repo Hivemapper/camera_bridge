@@ -64,7 +64,9 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     fileNameGenerator << "latest.txt";
     latestFileName_ = fileNameGenerator.str();
 
+    std::cerr << "before----" << std::endl;
     collectExistingFilenames();
+    std::cerr << "after----" << std::endl;
 }
 
 FileOutput::~FileOutput() {
