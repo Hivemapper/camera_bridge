@@ -12,6 +12,7 @@
 #include <sys/time.h>
 
 #include <queue>
+#include <mutex>
 #include "output.hpp"
 
 class FileOutput : public Output
@@ -52,6 +53,7 @@ private:
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
+    std::mutex fileQueueMutex_;
     std::deque<std::string> filesStoredOnUSB_;
     uint32_t maxUSBUsage_ = 0;
     uint32_t maxUSBFiles_ = 0;
