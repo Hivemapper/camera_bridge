@@ -15,9 +15,16 @@
 #include <boost/filesystem.hpp>
 #include <fmt/core.h>
 
+
 #include "file_output.hpp"
 
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
+
+
+const std::string PARTITION_USB="/mnt/usb";
+const int MIN_FREE_SPACE_USB=100000000;
+const int MAX_FILES=20000;
+
 
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     dir2K_ = options_->downsampleStreamDir;
@@ -55,9 +62,41 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     fileNameGenerator << latestDir_;
     fileNameGenerator << "latest.txt";
     latestFileName_ = fileNameGenerator.str();
+
+    collectExistingFilenames();
 }
 
 FileOutput::~FileOutput() {
+}
+
+void FileOutput::collectExistingFilenames() {
+    std::vector<std::string> directoryPaths = {dir2K_, dir4K_, dirUSB_};
+    std::set<std::string> foundFiles;
+
+    for (const std::string &directoryPath : directoryPaths) {
+        for (const auto &entry : std::filesystem::directory_iterator(directoryPath)) {
+            const std::string &file = entry.path();
+            if (foundFiles.find(file) == foundFiles.end()){
+                foundFiles.insert(file);
+                fileNameQueue_.push_back(file);
+            }
+        }
+    }
+}
+
+void FileOutput::removeLast(size_t numFiles) {
+    numFiles = std::min(numFiles, fileNameQueue_.size());
+    while (numFiles) {
+        std::string fileName = fileNameQueue_.front();
+        fileNameQueue_.pop_front();
+
+        int status = std::remove(fileName.c_str());
+        if (status != 0) {
+            std::cerr << "Failed to delete file " << fileName << std::endl;
+        }
+
+        numFiles--;
+    }
 }
 
 void FileOutput::outputBuffer(void *mem,
@@ -71,6 +110,16 @@ void FileOutput::outputBuffer(void *mem,
     struct timeval tv;
     gettimeofday(&tv, NULL);
     static int32_t frameNumTrun = 0;
+
+    std::cout << "space: " << std::filesystem::space(PARTITION_USB).free << std::endl;
+
+    if (std::filesystem::space(PARTITION_USB).free < MIN_FREE_SPACE_USB 
+        || fileNameQueue_.size() > MAX_FILES) {
+        if (options_->verbose) {
+            std::cout << "Out of space, removing older image files." << std::endl;
+        }
+        removeLast(5);
+    }
 
     try {
         tv = getAdjustedTime(timestamp_us);
@@ -161,6 +210,7 @@ void FileOutput::wrapAndWrite(void *mem, std::string fullFileName, size_t size,
         }
         fileWritten = true;
     }
+    fileNameQueue_.push_back(fullFileName);
 }
 
 void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,

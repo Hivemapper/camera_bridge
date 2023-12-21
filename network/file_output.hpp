@@ -36,6 +36,8 @@ protected:
     struct timeval getAdjustedTime(int64_t timestamp_us);
     void wrapAndWrite(void *mem, std::string fullFileName, size_t size, void *exifMem, size_t exifSize, int index);
     void writeFile(std::string fullFileName, void *mem, size_t size, void *exifMem, size_t exifSize);
+    void collectExistingFilenames();
+    void removeLast(size_t numFiles);
 
 private:
 
@@ -50,5 +52,6 @@ private:
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
+    std::deque<std::string> fileNameQueue_;
 
 };

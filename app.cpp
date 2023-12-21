@@ -63,7 +63,7 @@ static void execute_stream(LibcameraEncoder &app, VideoOptions *options)
   app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4, _5, _6, _7, _8));
   app.StartEncoder();
 
-  app.OpenCamera();
+  app.OpenCamera(); // sets up a callback in postprocessor to add data to the queue
   app.ConfigureVideo();
   app.StartCamera();
 
