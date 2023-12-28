@@ -68,7 +68,7 @@ struct VideoOptions : public Options {
                 ("circular", value<bool>(&circular)->default_value(false)->implicit_value(true),
                  "Write output to a circular buffer which is saved on exit")
                 ("min_usb_free_space", value<uint32_t>(&min_usb_free_space)->default_value(0),
-                 "Set maximum usb usage in bytes. Default is no maximum.")
+                 "Set minimum free space required on usb in bytes. Default is no minimum.")
                 ("max_usb_files", value<uint32_t>(&max_usb_files)->default_value(0),
                  "Set maximum number of files that can be stored. Default is no maximum.");
     }
