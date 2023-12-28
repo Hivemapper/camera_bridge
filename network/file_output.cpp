@@ -99,7 +99,11 @@ void FileOutput::removeLast(size_t numFiles) {
         filesStoredOnUSB_.pop_front();
 
         int status = std::remove(fileName.c_str());
-        std::cerr << "removed " << fileName << std::endl;
+
+        if (options_->verbose) {
+            std::cerr << "removed " << fileName << std::endl;
+        }
+
         if (status != 0) {
             std::cerr << "Failed to delete file " << fileName << std::endl;
         }
