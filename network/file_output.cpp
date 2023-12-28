@@ -135,10 +135,12 @@ void FileOutput::outputBuffer(void *mem,
     if (!dirUSB_.empty() && boost::filesystem::exists(dirUSB_)) {
         std::filesystem::space_info space = std::filesystem::space(dirUSB_);
 
-        std::cerr << "filesStored: " << filesStoredOnUSB_.size() << std::endl;
-        std::cerr << "space free: " << space.free << std::endl;
-        std::cerr << "usb files: " << maxUSBFiles_ << std::endl;
-        std::cerr << "usb usage: " << minUSBFreeSpace_ << std::endl;
+        if (options_->verbose) {
+            std::cerr << "number of files stored: " << filesStoredOnUSB_.size() << std::endl;
+            std::cerr << "space free: " << space.free << std::endl;
+            std::cerr << "max usb files: " << maxUSBFiles_ << std::endl;
+            std::cerr << "min usb free space: " << minUSBFreeSpace_ << std::endl;
+        }
 
         if ((minUSBFreeSpace_ > 0 && space.free < minUSBFreeSpace_)
             || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
@@ -240,10 +242,6 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
     uint8_t *writerIndex = (uint8_t *) mem;
     uint8_t exifLenBuff[2];
 
-    if (fd == -1) {
-        throw std::runtime_error("failed to open file");
-    }
-
     //if we have an exif header then shift the writerIndex by 20
     if (exifSize > 0) {
         writerIndex += 20;
@@ -275,7 +273,6 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
         writerIndex += nowWritten;
         totalWritten += nowWritten;
     }
-    std::cerr << "succeeded!  Total written " << std::endl;
-    close(fd);
 
+    close(fd);
 }
