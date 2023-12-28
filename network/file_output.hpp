@@ -12,6 +12,7 @@
 #include <sys/time.h>
 
 #include <queue>
+#include <mutex>
 #include "output.hpp"
 
 class FileOutput : public Output
@@ -36,6 +37,8 @@ protected:
     struct timeval getAdjustedTime(int64_t timestamp_us);
     void wrapAndWrite(void *mem, std::string fullFileName, size_t size, void *exifMem, size_t exifSize, int index);
     void writeFile(std::string fullFileName, void *mem, size_t size, void *exifMem, size_t exifSize);
+    void collectExistingFilenames();
+    void removeLast(size_t numFiles);
 
 private:
 
@@ -50,5 +53,9 @@ private:
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
+    std::mutex fileQueueMutex_;
+    std::deque<std::filesystem::path> filesStoredOnUSB_;
+    uint32_t minUSBFreeSpace_ = 0;
+    uint32_t maxUSBFiles_ = 0;
 
 };

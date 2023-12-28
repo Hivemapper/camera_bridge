@@ -17,6 +17,8 @@
 
 #include "file_output.hpp"
 
+namespace fs = std::filesystem;
+
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
@@ -34,6 +36,8 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     verbose_ = options_->verbose;
     prefix_ = options_->prefix;
     writeTempFile_ = options_->writeTmp;
+    minUSBFreeSpace_ = options_->min_usb_free_space;
+    maxUSBFiles_ = options_->max_usb_files;
 
     //TODO - Assume jpeg format for now. Otherwise extract
     postfix_ = ".jpg";
@@ -55,9 +59,54 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     fileNameGenerator << latestDir_;
     fileNameGenerator << "latest.txt";
     latestFileName_ = fileNameGenerator.str();
+
+    if (!dirUSB_.empty()) {
+        collectExistingFilenames();
+    }
 }
 
 FileOutput::~FileOutput() {
+}
+
+void FileOutput::collectExistingFilenames() {
+    std::lock_guard<std::mutex> lock(fileQueueMutex_);
+
+    for (const auto &entry : fs::directory_iterator(dirUSB_)) {
+        filesStoredOnUSB_.push_back(entry.path());
+    }
+
+    // Sort by timestamp
+    std::sort(filesStoredOnUSB_.begin(), filesStoredOnUSB_.end(),
+        [](const fs::path &a, const fs::path &b) {
+            return a.stem() < b.stem();
+        }
+    );
+
+    if (options_->verbose) {
+        std::cerr << "files stored: " << filesStoredOnUSB_.size() << std::endl;
+    }
+}
+
+void FileOutput::removeLast(size_t numFiles) {
+    std::lock_guard<std::mutex> lock(fileQueueMutex_);
+
+    numFiles = std::min(numFiles, filesStoredOnUSB_.size());
+    while (numFiles) {
+        std::string fileName = filesStoredOnUSB_.front();
+        filesStoredOnUSB_.pop_front();
+
+        int status = std::remove(fileName.c_str());
+
+        if (options_->verbose) {
+            std::cerr << "removed " << fileName << std::endl;
+        }
+
+        if (status != 0) {
+            std::cerr << "Failed to delete file " << fileName << std::endl;
+        }
+
+        numFiles--;
+    }
 }
 
 void FileOutput::outputBuffer(void *mem,
@@ -84,14 +133,35 @@ void FileOutput::outputBuffer(void *mem,
         wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
     }
 
-    if (!dirUSB_.empty()) {
+    if (!dirUSB_.empty() && boost::filesystem::exists(dirUSB_)) {
+        std::filesystem::space_info space = std::filesystem::space(dirUSB_);
+
+        if (options_->verbose) {
+            std::cerr << "number of files stored: " << filesStoredOnUSB_.size() << std::endl;
+            std::cerr << "space free: " << space.free << std::endl;
+            std::cerr << "max usb files: " << maxUSBFiles_ << std::endl;
+            std::cerr << "min usb free space: " << minUSBFreeSpace_ << std::endl;
+        }
+
+        if ((minUSBFreeSpace_ > 0 && space.free < minUSBFreeSpace_)
+            || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
+            if (options_->verbose) {
+                std::cerr << "Out of space, removing older image files." << std::endl;
+            }
+            removeLast(5);
+        }
+
         std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirUSB_, prefix_, tv.tv_sec,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
+            std::lock_guard<std::mutex> lock(fileQueueMutex_);
+            filesStoredOnUSB_.push_back(secFileName);
         } else {
             if (!options_->skip_2k) {
                 wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
+                std::lock_guard<std::mutex> lock(fileQueueMutex_);
+                filesStoredOnUSB_.push_back(secFileName);
             }
         }
     }

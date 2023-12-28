@@ -66,7 +66,11 @@ struct VideoOptions : public Options {
                 ("segment", value<uint32_t>(&segment)->default_value(0),
                  "Break the recording into files of approximately this many milliseconds")
                 ("circular", value<bool>(&circular)->default_value(false)->implicit_value(true),
-                 "Write output to a circular buffer which is saved on exit");
+                 "Write output to a circular buffer which is saved on exit")
+                ("min_usb_free_space", value<uint32_t>(&min_usb_free_space)->default_value(0),
+                 "Set minimum free space required on usb in bytes. Default is no minimum.")
+                ("max_usb_files", value<uint32_t>(&max_usb_files)->default_value(0),
+                 "Set maximum number of files that can be stored. Default is no maximum.");
     }
 
     uint32_t bitrate;
@@ -93,6 +97,8 @@ struct VideoOptions : public Options {
     bool split;
     uint32_t segment;
     bool circular;
+    uint32_t min_usb_free_space;
+    uint32_t max_usb_files;
 
     void json_manage_cam_cfg(nlohmann::json camera_cfg) {
         if (camera_cfg.contains("encoding")) {
@@ -125,6 +131,12 @@ struct VideoOptions : public Options {
         }
         if (encoding_cfg.contains("crop_offset_from_top")) {
             crop_offset_from_top = encoding_cfg.at("crop_offset_from_top");
+        }
+        if (encoding_cfg.contains("min_usb_free_space")) {
+            min_usb_free_space = encoding_cfg.at("min_usb_free_space");
+        }
+        if (encoding_cfg.contains("max_usb_files")) {
+            max_usb_files = encoding_cfg.at("max_usb_files");
         }
     }
 
@@ -196,5 +208,7 @@ struct VideoOptions : public Options {
         std::cerr << "    split: " << split << std::endl;
         std::cerr << "    segment: " << segment << std::endl;
         std::cerr << "    circular: " << circular << std::endl;
+        std::cerr << "    min_usb_free_space: " << min_usb_free_space << std::endl;
+        std::cerr << "    max_usb_files: " << max_usb_files << std::endl;
     }
 };
