@@ -137,8 +137,7 @@ void FileOutput::outputBuffer(void *mem,
     }
 
     if (!dirUSB_.empty() && boost::filesystem::exists(dirUSB_)) {
-        std::filesystem::space_info space; // = std::filesystem::space(dirUSB_);
-        space.free = 615530496;
+        std::filesystem::space_info space = std::filesystem::space(dirUSB_);
 
         if (options_->verbose) {
             std::cerr << "number of files stored: " << filesStoredOnUSB_.size() << std::endl;
@@ -159,12 +158,12 @@ void FileOutput::outputBuffer(void *mem,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
-            std::lock_guard<std::mutex> lock(fileQueueMutex_);
+            // std::lock_guard<std::mutex> lock(fileQueueMutex_);
             filesStoredOnUSB_.push_back(secFileName);
         } else {
             if (!options_->skip_2k) {
                 wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
-                std::lock_guard<std::mutex> lock(fileQueueMutex_);
+                // std::lock_guard<std::mutex> lock(fileQueueMutex_);
                 filesStoredOnUSB_.push_back(secFileName);
             }
         }
