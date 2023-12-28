@@ -21,6 +21,16 @@ namespace fs = std::filesystem;
 
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
+const std::string currentDateTime() {
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+
+    strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
+    return buf;
+}
+
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     dir2K_ = options_->downsampleStreamDir;
     dir4K_ = options_->output;
@@ -71,8 +81,10 @@ FileOutput::~FileOutput() {
 void FileOutput::collectExistingFilenames() {
     std::lock_guard<std::mutex> lock(fileQueueMutex_);
 
-    for (const auto &entry : fs::directory_iterator(dirUSB_)) {
-        filesStoredOnUSB_.push_back(entry.path());
+    for (const auto &entry : fs::recursive_directory_iterator(dirUSB_)) {
+        if (entry.is_regular_file()) {
+            filesStoredOnUSB_.push_back(entry.path());
+        }
     }
 
     // Sort by timestamp
@@ -151,7 +163,8 @@ void FileOutput::outputBuffer(void *mem,
             removeLast(5);
         }
 
-        std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirUSB_, prefix_, tv.tv_sec,
+        const std::string date = currentDateTime();
+        std::string secFileName = fmt::format("{}{}/{}{:0>10d}_{:0>6d}{}", dirUSB_, date, prefix_, tv.tv_sec,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
