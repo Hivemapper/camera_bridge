@@ -82,9 +82,8 @@ void FileOutput::collectExistingFilenames() {
         }
     );
 
-    std::cerr << "files stored: " << filesStoredOnUSB_.size() << std::endl;
-    if (filesStoredOnUSB_.size() > 0) {
-        std::cerr << filesStoredOnUSB_.front() << std::endl;
+    if (options_->verbose) {
+        std::cerr << "files stored: " << filesStoredOnUSB_.size() << std::endl;
     }
 }
 
