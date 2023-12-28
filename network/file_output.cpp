@@ -151,7 +151,7 @@ void FileOutput::outputBuffer(void *mem,
             if (options_->verbose) {
                 std::cerr << "Out of space, removing older image files." << std::endl;
             }
-            removeLast(5);
+            removeLast(50);
         }
 
         std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirUSB_, prefix_, tv.tv_sec,
