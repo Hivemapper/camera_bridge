@@ -15,13 +15,11 @@
 #include <boost/filesystem.hpp>
 #include <fmt/core.h>
 
-
 #include "file_output.hpp"
 
 namespace fs = std::filesystem;
 
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
-
 
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     dir2K_ = options_->downsampleStreamDir;
@@ -78,7 +76,7 @@ void FileOutput::collectExistingFilenames() {
     }
 
     // Sort by timestamp
-    std::sort(filesStoredOnUSB_.begin(), filesStoredOnUSB_.end(), 
+    std::sort(filesStoredOnUSB_.begin(), filesStoredOnUSB_.end(),
         [](const fs::path &a, const fs::path &b) {
             return a.stem() < b.stem();
         }
@@ -277,6 +275,6 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
         writerIndex += nowWritten;
         totalWritten += nowWritten;
     }
-
     close(fd);
+
 }
