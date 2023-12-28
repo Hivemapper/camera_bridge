@@ -277,6 +277,7 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
         writerIndex += nowWritten;
         totalWritten += nowWritten;
     }
+    std::cerr << "succeeded!  Total written " << std::endl;
     close(fd);
 
 }
