@@ -137,34 +137,34 @@ void FileOutput::outputBuffer(void *mem,
     }
 
     if (!dirUSB_.empty() && boost::filesystem::exists(dirUSB_)) {
-        // std::filesystem::space_info space = std::filesystem::space(dirUSB_);
+        std::filesystem::space_info space = std::filesystem::space(dirUSB_);
 
         if (options_->verbose) {
             std::cerr << "number of files stored: " << filesStoredOnUSB_.size() << std::endl;
-            // std::cerr << "space free: " << space.free << std::endl;
+            std::cerr << "space free: " << space.free << std::endl;
             std::cerr << "max usb files: " << maxUSBFiles_ << std::endl;
             std::cerr << "min usb free space: " << minUSBFreeSpace_ << std::endl;
         }
 
-        // if ((minUSBFreeSpace_ > 0 && space.free < minUSBFreeSpace_)
-        //     || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
-        //     if (options_->verbose) {
-        //         std::cerr << "Out of space, removing older image files." << std::endl;
-        //     }
-        //     removeLast(5);
-        // }
+        if ((minUSBFreeSpace_ > 0 && space.free < minUSBFreeSpace_)
+            || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
+            if (options_->verbose) {
+                std::cerr << "Out of space, removing older image files." << std::endl;
+            }
+            removeLast(5);
+        }
 
         std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirUSB_, prefix_, tv.tv_sec,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
-            // std::lock_guard<std::mutex> lock(fileQueueMutex_);
-            //filesStoredOnUSB_.push_back(secFileName);
+            std::lock_guard<std::mutex> lock(fileQueueMutex_);
+            filesStoredOnUSB_.push_back(secFileName);
         } else {
             if (!options_->skip_2k) {
                 wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
-                // std::lock_guard<std::mutex> lock(fileQueueMutex_);
-                //filesStoredOnUSB_.push_back(secFileName);
+                std::lock_guard<std::mutex> lock(fileQueueMutex_);
+                filesStoredOnUSB_.push_back(secFileName);
             }
         }
     }
