@@ -54,7 +54,7 @@ private:
     std::string postfix_;
     struct timeval baseTime_;
     std::mutex fileQueueMutex_;
-    std::deque<std::string> filesStoredOnUSB_;
+    std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
     uint32_t maxUSBFiles_ = 0;
 

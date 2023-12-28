@@ -18,6 +18,8 @@
 
 #include "file_output.hpp"
 
+namespace fs = std::filesystem;
+
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
 
@@ -71,10 +73,16 @@ FileOutput::~FileOutput() {
 void FileOutput::collectExistingFilenames() {
     std::lock_guard<std::mutex> lock(fileQueueMutex_);
 
-    for (const auto &entry : std::filesystem::directory_iterator(dirUSB_)) {
+    for (const auto &entry : fs::directory_iterator(dirUSB_)) {
         filesStoredOnUSB_.push_back(entry.path());
     }
-    std::sort(filesStoredOnUSB_.begin(), filesStoredOnUSB_.end());
+
+    // Sort by timestamp
+    std::sort(filesStoredOnUSB_.begin(), filesStoredOnUSB_.end(), 
+        [](const fs::path &a, const fs::path &b) {
+            return a.stem() < b.stem();
+        }
+    );
 
     std::cerr << "files stored: " << filesStoredOnUSB_.size() << std::endl;
     if (filesStoredOnUSB_.size() > 0) {
@@ -233,6 +241,10 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
     int fd = open(fullFileName.c_str(), O_CREAT | O_WRONLY | O_TRUNC | O_NONBLOCK, 0644);
     uint8_t *writerIndex = (uint8_t *) mem;
     uint8_t exifLenBuff[2];
+
+    if (fd == -1) {
+        throw std::runtime_error("failed to open file");
+    }
 
     //if we have an exif header then shift the writerIndex by 20
     if (exifSize > 0) {
