@@ -137,7 +137,8 @@ void FileOutput::outputBuffer(void *mem,
     }
 
     if (!dirUSB_.empty() && boost::filesystem::exists(dirUSB_)) {
-        std::filesystem::space_info space = std::filesystem::space(dirUSB_);
+        std::filesystem::space_info space; // = std::filesystem::space(dirUSB_);
+        space.free = 615530496;
 
         if (options_->verbose) {
             std::cerr << "number of files stored: " << filesStoredOnUSB_.size() << std::endl;
