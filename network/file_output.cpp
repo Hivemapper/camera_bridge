@@ -212,16 +212,19 @@ void FileOutput::outputBuffer(void *mem,
         void *copy_of_exifMem = malloc(exifSize);
         memcpy(copy_of_mem, mem, size);
         memcpy(copy_of_exifMem, exifMem, exifSize);
-        waitForUSB_.acquire();
-        filesToTransfer_.Post(Work {
-            tv,
-            secFileName,
-            copy_of_mem,
-            size,
-            copy_of_exifMem,
-            exifSize,
-            1,
-        });
+        bool available = waitForUSB_.acquire();
+
+        if (available) {
+            filesToTransfer_.Post(Work {
+                tv,
+                secFileName,
+                copy_of_mem,
+                size,
+                copy_of_exifMem,
+                exifSize,
+                1,
+            });
+        }
     }
 
     if (!dir2K_.empty() && !options_->skip_2k) {

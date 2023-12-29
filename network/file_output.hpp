@@ -59,10 +59,12 @@ struct Work {
     int index;
 };
 
+using namespace std::chrono_literals;
 class Semaphore {
     std::mutex mutex_;
     std::condition_variable condition_;
     unsigned long count_ = 0; // Initialized as locked.
+
 
 public:
     void release() {
@@ -71,11 +73,16 @@ public:
         condition_.notify_one();
     }
 
-    void acquire() {
+    bool acquire() {
         std::unique_lock<decltype(mutex_)> lock(mutex_);
-        while(!count_) // Handle spurious wake-ups.
-            condition_.wait(lock);
+        // while(!count_) // Handle spurious wake-ups.
+        //     condition_.wait(lock);
+        condition_.wait_for(lock, 1ms);
+        if (!count_) {
+            return false; 
+        }
         --count_;
+        return true;
     }
 
     bool try_acquire() {
