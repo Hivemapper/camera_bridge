@@ -72,8 +72,7 @@ FileOutput::~FileOutput() {
 
 void FileOutput::usbFunction() {
     while (1) {
-        sleep(1);
-        std::cerr << "Hello" << std::endl;
+        waitForUSB_.release();
         Work w = filesToTransfer_.Wait();
         void *mem = w.mem;
         size_t size = w.size;
@@ -95,7 +94,9 @@ void FileOutput::usbFunction() {
                 filesStoredOnUSB_.push_back(secFileName);
             }
         }
-        waitForUSB_.release();
+
+        free(mem);
+        free(exifMem);
     }
 }
 
@@ -207,16 +208,20 @@ void FileOutput::outputBuffer(void *mem,
                                                         tv.tv_usec, postfix_);
 
         // problem: can't assume that these entries still exist
+        void *copy_of_mem = malloc(size);
+        void *copy_of_exifMem = malloc(exifSize);
+        memcpy(copy_of_mem, mem, size);
+        memcpy(copy_of_exifMem, exifMem, exifSize);
+        waitForUSB_.acquire();
         filesToTransfer_.Post(Work {
             tv,
             secFileName,
-            mem,
+            copy_of_mem,
             size,
-            exifMem,
+            copy_of_exifMem,
             exifSize,
             1,
         });
-        waitForUSB_.acquire();
     }
 
     if (!dir2K_.empty() && !options_->skip_2k) {
