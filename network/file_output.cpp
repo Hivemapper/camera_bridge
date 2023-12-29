@@ -163,15 +163,14 @@ void FileOutput::outputBuffer(void *mem,
             removeLast(5);
         }
 
-        const std::string date = currentDateTime();
-        const std::string dir = dirUSB_ + date;
-        if(!boost::filesystem::exists(dir)) {
-            bool status = fs::create_directory(dir);
+        const std::string dirWithDate = fmt::format("{}{}/", dirUSB_, currentDateTime());
+        if(!boost::filesystem::exists(dirWithDate)) {
+            bool status = fs::create_directory(dirWithDate);
             if (!status) {
-                std::cerr << "Failed to create directory: " << dir << std::endl;
+                std::cerr << "Failed to create directory: " << dirWithDate << std::endl;
             }
         }
-        std::string secFileName = fmt::format("{}{}/{}{:0>10d}_{:0>6d}{}", dirUSB_, date, prefix_, tv.tv_sec,
+        std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirWithDate, prefix_, tv.tv_sec,
                                               tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
