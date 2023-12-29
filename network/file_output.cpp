@@ -170,7 +170,7 @@ void FileOutput::outputBuffer(void *mem,
                 std::cerr << "Failed to create directory: " << dirWithDate << std::endl;
             }
         }
-        std::string secFileName = dirWithDate / fmt::format("{}{:0>10d}_{:0>6d}{}", 
+        fs::path secFileName = dirWithDate / fmt::format("{}{:0>10d}_{:0>6d}{}", 
                                                         prefix_, tv.tv_sec,
                                                         tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
