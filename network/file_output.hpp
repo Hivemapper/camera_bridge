@@ -13,6 +13,7 @@
 
 #include <queue>
 #include <mutex>
+#include <thread>
 #include "output.hpp"
 
 class FileOutput : public Output
@@ -24,6 +25,8 @@ public:
     void checkGPSLock();
 
 protected:
+
+    void usbFunction();
 
     void outputBuffer(void *mem,
                       size_t size,
@@ -59,5 +62,7 @@ private:
     std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
     uint32_t maxUSBFiles_ = 0;
+
+    std::thread usbThread_;
 
 };

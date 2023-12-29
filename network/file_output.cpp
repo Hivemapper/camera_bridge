@@ -63,9 +63,18 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     if (!dirUSB_.empty()) {
         collectExistingFilenames();
     }
+
+    usbThread_ = std::thread(std::bind(&FileOutput::usbFunction, this)); 
 }
 
 FileOutput::~FileOutput() {
+}
+
+void FileOutput::usbFunction() {
+    while (1) {
+        sleep(1);
+        std::cerr << "Hello" << std::endl;
+    }
 }
 
 void FileOutput::collectExistingFilenames() {
