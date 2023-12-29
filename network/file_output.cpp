@@ -74,6 +74,28 @@ void FileOutput::usbFunction() {
     while (1) {
         sleep(1);
         std::cerr << "Hello" << std::endl;
+        Work w = filesToTransfer_.Wait();
+        void *mem = w.mem;
+        size_t size = w.size;
+        void *exifMem = w.exifMem;
+        size_t exifSize = w.exifSize;
+        std::string secFileName = w.filePath;
+
+        void *prevMem = NULL;
+        size_t prevSize = 0;
+
+        if (!options_->skip_4k) {
+            wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
+            std::lock_guard<std::mutex> lock(fileQueueMutex_);
+            filesStoredOnUSB_.push_back(secFileName);
+        } else {
+            if (!options_->skip_2k) {
+                wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
+                std::lock_guard<std::mutex> lock(fileQueueMutex_);
+                filesStoredOnUSB_.push_back(secFileName);
+            }
+        }
+        waitForUSB_.release();
     }
 }
 
@@ -183,17 +205,18 @@ void FileOutput::outputBuffer(void *mem,
         fs::path secFileName = dirWithDate / fmt::format("{}{:0>10d}_{:0>6d}{}", 
                                                         prefix_, tv.tv_sec,
                                                         tv.tv_usec, postfix_);
-        if (!options_->skip_4k) {
-            wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
-            std::lock_guard<std::mutex> lock(fileQueueMutex_);
-            filesStoredOnUSB_.push_back(secFileName);
-        } else {
-            if (!options_->skip_2k) {
-                wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
-                std::lock_guard<std::mutex> lock(fileQueueMutex_);
-                filesStoredOnUSB_.push_back(secFileName);
-            }
-        }
+
+        // problem: can't assume that these entries still exist
+        filesToTransfer_.Post(Work {
+            tv,
+            secFileName,
+            mem,
+            size,
+            exifMem,
+            exifSize,
+            1,
+        });
+        waitForUSB_.acquire();
     }
 
     if (!dir2K_.empty() && !options_->skip_2k) {

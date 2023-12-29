@@ -15,6 +15,78 @@
 #include <mutex>
 #include <thread>
 #include "output.hpp"
+#include <condition_variable>
+#include <semaphore>
+
+template <typename T>
+class MessageQueue
+{
+public:
+    template <typename U>
+    void Post(U &&msg)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        queue_.push(std::forward<U>(msg));
+        cond_.notify_one();
+    }
+    T Wait()
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        cond_.wait(lock, [this] { return !queue_.empty(); });
+        T msg = std::move(queue_.front());
+        queue_.pop();
+        return msg;
+    }
+    void Clear()
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        queue_ = {};
+    }
+
+private:
+    std::queue<T> queue_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
+};
+
+struct Work {
+    timeval time;
+    std::filesystem::path filePath;
+    void *mem;
+    size_t size;
+    void *exifMem;
+    size_t exifSize;
+    int index;
+};
+
+class Semaphore {
+    std::mutex mutex_;
+    std::condition_variable condition_;
+    unsigned long count_ = 0; // Initialized as locked.
+
+public:
+    void release() {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        ++count_;
+        condition_.notify_one();
+    }
+
+    void acquire() {
+        std::unique_lock<decltype(mutex_)> lock(mutex_);
+        while(!count_) // Handle spurious wake-ups.
+            condition_.wait(lock);
+        --count_;
+    }
+
+    bool try_acquire() {
+        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        if(count_) {
+            --count_;
+            return true;
+        }
+        return false;
+    }
+};
 
 class FileOutput : public Output
 {
@@ -62,7 +134,8 @@ private:
     std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
     uint32_t maxUSBFiles_ = 0;
+    MessageQueue<Work> filesToTransfer_;
 
     std::thread usbThread_;
-
+    Semaphore waitForUSB_;
 };
