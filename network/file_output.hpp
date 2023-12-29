@@ -49,7 +49,7 @@ private:
     std::string latestFileName_;
     std::string dir2K_;
     std::string dir4K_;
-    fs::path dirUSB_;
+    std::filesystem::path dirUSB_;
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
