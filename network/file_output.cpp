@@ -21,17 +21,6 @@ namespace fs = std::filesystem;
 
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
-std::string FileOutput::currentDate() {
-    std::lock_guard lock(localtimeMutex_);
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
-    return buf;
-}
-
 FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     dir2K_ = options_->downsampleStreamDir;
     dir4K_ = options_->output;
@@ -120,6 +109,17 @@ void FileOutput::removeLast(size_t numFiles) {
 
         numFiles--;
     }
+}
+
+std::string FileOutput::currentDate() {
+    std::lock_guard lock(localtimeMutex_);
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
+    return buf;
 }
 
 void FileOutput::outputBuffer(void *mem,

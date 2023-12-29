@@ -35,11 +35,11 @@ protected:
                       uint32_t flags) override;
 
     struct timeval getAdjustedTime(int64_t timestamp_us);
-    std::string currentDate();
     void wrapAndWrite(void *mem, std::string fullFileName, size_t size, void *exifMem, size_t exifSize, int index);
     void writeFile(std::string fullFileName, void *mem, size_t size, void *exifMem, size_t exifSize);
     void collectExistingFilenames();
     void removeLast(size_t numFiles);
+    std::string currentDate();
 
 private:
 
