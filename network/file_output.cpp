@@ -54,13 +54,13 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     gpsLockAcq_ = false;
 
     //Check if directories exist, and if not then ignore them
-    if (!boost::filesystem::exists(dir4K_)) {
+    if (!fs::exists(dir4K_)) {
         dir4K_ = "";
     }
-    if (!boost::filesystem::exists(dirUSB_)) {
+    if (!fs::exists(dirUSB_)) {
         dirUSB_ = "";
     }
-    if (!boost::filesystem::exists(dir2K_)) {
+    if (!fs::exists(dir2K_)) {
         dir2K_ = "";
     }
 
@@ -145,7 +145,7 @@ void FileOutput::outputBuffer(void *mem,
         wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
     }
 
-    if (!dirUSB_.empty() && boost::filesystem::exists(dirUSB_)) {
+    if (!dirUSB_.empty() && fs::exists(dirUSB_)) {
         std::filesystem::space_info space = std::filesystem::space(dirUSB_);
 
         if (options_->verbose) {
@@ -163,15 +163,16 @@ void FileOutput::outputBuffer(void *mem,
             removeLast(5);
         }
 
-        const std::string dirWithDate = fmt::format("{}{}/", dirUSB_, currentDateTime());
-        if(!boost::filesystem::exists(dirWithDate)) {
+        const fs::path dirWithDate = dirUSB_ / currentDateTime();
+        if(!fs::exists(dirWithDate)) {
             bool status = fs::create_directory(dirWithDate);
             if (!status) {
                 std::cerr << "Failed to create directory: " << dirWithDate << std::endl;
             }
         }
-        std::string secFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dirWithDate, prefix_, tv.tv_sec,
-                                              tv.tv_usec, postfix_);
+        std::string secFileName = dirWithDate / fmt::format("{}{:0>10d}_{:0>6d}{}", 
+                                                        prefix_, tv.tv_sec,
+                                                        tv.tv_usec, postfix_);
         if (!options_->skip_4k) {
             wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
             std::lock_guard<std::mutex> lock(fileQueueMutex_);
