@@ -21,12 +21,13 @@ namespace fs = std::filesystem;
 
 static const unsigned char exif_header[] = {0xff, 0xd8, 0xff, 0xe1};
 
-const std::string currentDateTime() {
+std::string FileOutput::currentDate() {
+    std::lock_guard lock(localtimeMutex_);
     time_t     now = time(0);
     struct tm  tstruct;
     char       buf[80];
-    tstruct = *localtime(&now);
 
+    tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
     return buf;
 }
@@ -163,7 +164,7 @@ void FileOutput::outputBuffer(void *mem,
             removeLast(5);
         }
 
-        const fs::path dirWithDate = dirUSB_ / currentDateTime();
+        const fs::path dirWithDate = dirUSB_ / currentDate();
         if(!fs::exists(dirWithDate)) {
             bool status = fs::create_directory(dirWithDate);
             if (!status) {
@@ -241,7 +242,7 @@ void FileOutput::wrapAndWrite(void *mem, std::string fullFileName, size_t size,
         try {
             if (writeTempFile_) {
                 writeFile(tempFileName, mem, size, exifMem, exifSize);
-                boost::filesystem::rename(tempFileName, fullFileName);
+                fs::rename(tempFileName, fullFileName);
             } else {
                 writeFile(fullFileName, mem, size, exifMem, exifSize);
             }

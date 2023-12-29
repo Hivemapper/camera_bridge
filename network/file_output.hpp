@@ -35,6 +35,7 @@ protected:
                       uint32_t flags) override;
 
     struct timeval getAdjustedTime(int64_t timestamp_us);
+    std::string currentDate();
     void wrapAndWrite(void *mem, std::string fullFileName, size_t size, void *exifMem, size_t exifSize, int index);
     void writeFile(std::string fullFileName, void *mem, size_t size, void *exifMem, size_t exifSize);
     void collectExistingFilenames();
@@ -53,6 +54,7 @@ private:
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
+    std::mutex localtimeMutex_;
     std::mutex fileQueueMutex_;
     std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
