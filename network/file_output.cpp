@@ -242,7 +242,7 @@ void FileOutput::wrapAndWrite(void *mem, std::string fullFileName, size_t size,
         try {
             if (writeTempFile_) {
                 writeFile(tempFileName, mem, size, exifMem, exifSize);
-                fs::rename(tempFileName, fullFileName);
+                boost::filesystem::rename(tempFileName, fullFileName);
             } else {
                 writeFile(fullFileName, mem, size, exifMem, exifSize);
             }
