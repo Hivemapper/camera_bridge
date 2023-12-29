@@ -39,6 +39,7 @@ protected:
     void writeFile(std::string fullFileName, void *mem, size_t size, void *exifMem, size_t exifSize);
     void collectExistingFilenames();
     void removeLast(size_t numFiles);
+    std::string currentDate();
 
 private:
 
@@ -49,10 +50,11 @@ private:
     std::string latestFileName_;
     std::string dir2K_;
     std::string dir4K_;
-    std::string dirUSB_;
+    std::filesystem::path dirUSB_;
     std::string prefix_;
     std::string postfix_;
     struct timeval baseTime_;
+    std::mutex localtimeMutex_;
     std::mutex fileQueueMutex_;
     std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
