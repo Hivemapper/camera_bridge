@@ -10,7 +10,6 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         ++count_;
-        condition_.notify_one();
     }
 
     bool try_acquire()
@@ -26,6 +25,5 @@ public:
 
 private:
     std::mutex mutex_;
-    std::condition_variable condition_;
     unsigned long count_ = 0; // Initialized as locked.
 };
