@@ -49,13 +49,39 @@ private:
     std::condition_variable cond_;
 };
 
+struct MemoryWrapper {
+    public:
+        MemoryWrapper(void *mem, size_t memSize, void *exifMem, size_t exifMemSize)
+        :memSize(memSize), exifMemSize(exifMemSize)
+        {
+            this->mem = malloc(memSize);
+            if (this->mem == nullptr) {
+                throw std::bad_alloc();
+            }
+            this->exifMem = malloc(exifMemSize);
+            if (this->exifMem == nullptr) {
+                this->~MemoryWrapper();
+                throw std::bad_alloc();
+            }
+            memcpy(this->mem, mem, memSize);
+            memcpy(this->exifMem, exifMem, exifMemSize);
+        }
+        ~MemoryWrapper()
+        {
+            free(this->mem);
+            free(this->exifMem);
+        }
+
+        void *mem;
+        size_t memSize;
+        void *exifMem;
+        size_t exifMemSize;
+};
+
 struct Work {
     timeval time;
     std::filesystem::path filePath;
-    void *mem;
-    size_t size;
-    void *exifMem;
-    size_t exifSize;
+    MemoryWrapper memWrapper;
     int index;
 };
 
@@ -105,7 +131,7 @@ public:
 
 protected:
 
-    void usbFunction();
+    void usbThreadLoop();
 
     void outputBuffer(void *mem,
                       size_t size,

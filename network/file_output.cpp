@@ -64,39 +64,23 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
         collectExistingFilenames();
     }
 
-    usbThread_ = std::thread(std::bind(&FileOutput::usbFunction, this)); 
+    usbThread_ = std::thread(std::bind(&FileOutput::usbThreadLoop, this)); 
 }
 
 FileOutput::~FileOutput() {
 }
 
-void FileOutput::usbFunction() {
+void FileOutput::usbThreadLoop() {
     while (1) {
         waitForUSB_.release();
-        Work w = filesToTransfer_.Wait();
-        void *mem = w.mem;
-        size_t size = w.size;
-        void *exifMem = w.exifMem;
-        size_t exifSize = w.exifSize;
-        std::string secFileName = w.filePath;
-
-        void *prevMem = NULL;
-        size_t prevSize = 0;
+        Work w = std::move(filesToTransfer_.Wait());
 
         if (!options_->skip_4k) {
-            wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
+            const MemoryWrapper &mw = w.memWrapper;
+            wrapAndWrite(mw.mem, w.filePath, mw.memSize, mw.exifMem, mw.exifMemSize, 1);
             std::lock_guard<std::mutex> lock(fileQueueMutex_);
-            filesStoredOnUSB_.push_back(secFileName);
-        } else {
-            if (!options_->skip_2k) {
-                wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
-                std::lock_guard<std::mutex> lock(fileQueueMutex_);
-                filesStoredOnUSB_.push_back(secFileName);
-            }
+            filesStoredOnUSB_.push_back(w.filePath);
         }
-
-        free(mem);
-        free(exifMem);
     }
 }
 
@@ -207,23 +191,22 @@ void FileOutput::outputBuffer(void *mem,
                                                         prefix_, tv.tv_sec,
                                                         tv.tv_usec, postfix_);
 
-        // problem: can't assume that these entries still exist
-        void *copy_of_mem = malloc(size);
-        void *copy_of_exifMem = malloc(exifSize);
-        memcpy(copy_of_mem, mem, size);
-        memcpy(copy_of_exifMem, exifMem, exifSize);
-        bool available = waitForUSB_.acquire();
+        try {
+            // Make a copy of mem and exifMem
+            MemoryWrapper memWrapper(mem, size, exifMem, exifSize);
 
-        if (available) {
-            filesToTransfer_.Post(Work {
-                tv,
-                secFileName,
-                copy_of_mem,
-                size,
-                copy_of_exifMem,
-                exifSize,
-                1,
-            });
+            bool available = waitForUSB_.acquire();
+
+            if (available) {
+                filesToTransfer_.Post(Work {
+                    tv,
+                    secFileName,
+                    std::move(memWrapper),
+                    1,
+                });
+            }
+        } catch(std::bad_alloc err) {
+            std::cerr << "Failed to allocate space for USB write" << std::endl;
         }
     }
 
