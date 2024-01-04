@@ -75,6 +75,9 @@ void FileOutput::usbThreadLoop() {
         waitForUSB_.release();
         Work w = std::move(filesToTransfer_.Wait());
 
+        const MemoryWrapper &m = w.memWrapper;
+        std::cout << "Stats: " << m.mem << " " << m.memSize << " " << m.exifMem << " " << m.exifMemSize << std::endl;
+
         if (!options_->skip_4k) {
             const MemoryWrapper &mw = w.memWrapper;
             wrapAndWrite(mw.mem, w.filePath, mw.memSize, mw.exifMem, mw.exifMemSize, 1);
