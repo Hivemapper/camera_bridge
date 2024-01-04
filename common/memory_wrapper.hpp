@@ -5,27 +5,20 @@
 struct MemoryWrapper
 {
 public:
-    MemoryWrapper(void *mem, size_t memSize, void *exifMem, size_t exifMemSize)
-        : memSize(memSize), exifMemSize(exifMemSize)
+    MemoryWrapper(void *mem, size_t size)
+        : size(size)
     {
-        this->mem = malloc(memSize);
+        this->mem = malloc(size);
         if (this->mem == nullptr)
         {
             throw std::bad_alloc();
         }
-        this->exifMem = malloc(exifMemSize);
-        if (this->exifMem == nullptr)
-        {
-            this->~MemoryWrapper();
-            throw std::bad_alloc();
-        }
-        memcpy(this->mem, mem, memSize);
-        memcpy(this->exifMem, exifMem, exifMemSize);
+        memcpy(this->mem, mem, size);
     }
+
     ~MemoryWrapper()
     {
         free(this->mem);
-        free(this->exifMem);
     }
 
     MemoryWrapper(MemoryWrapper &&other)
@@ -36,12 +29,9 @@ public:
     MemoryWrapper &operator=(MemoryWrapper &&other)
     {
         this->mem = other.mem;
-        this->memSize = other.memSize;
-        this->exifMem = other.exifMem;
-        this->exifMemSize = other.exifMemSize;
+        this->size = other.size;
 
         other.mem = nullptr;
-        other.exifMem = nullptr;
         return *this;
     }
 
@@ -49,7 +39,5 @@ public:
     MemoryWrapper &operator=(const MemoryWrapper &) = delete;
 
     void *mem;
-    size_t memSize;
-    void *exifMem;
-    size_t exifMemSize;
+    size_t size;
 };

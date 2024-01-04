@@ -19,11 +19,12 @@
 #include "../common/semaphore.hpp"
 #include "../common/memory_wrapper.hpp"
 
-struct Work
+struct UsbThreadWork
 {
     timeval time;
     std::filesystem::path filePath;
     MemoryWrapper memWrapper;
+    MemoryWrapper exIfWrapper;
     int index;
 };
 
@@ -71,7 +72,7 @@ private:
     std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
     uint32_t maxUSBFiles_ = 0;
-    MessageQueue<Work> filesToTransfer_;
+    MessageQueue<UsbThreadWork> filesToTransfer_;
 
     std::thread usbThread_;
     Semaphore waitForUSB_;
