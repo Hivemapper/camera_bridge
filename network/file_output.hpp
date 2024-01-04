@@ -72,6 +72,13 @@ struct MemoryWrapper {
             free(this->exifMem);
         }
 
+        MemoryWrapper(const MemoryWrapper&) = delete;
+        MemoryWrapper& operator=(const MemoryWrapper&) = delete;
+
+        MemoryWrapper(MemoryWrapper&&) = default;
+        MemoryWrapper& operator=(MemoryWrapper&&) = default;
+
+
         void *mem;
         size_t memSize;
         void *exifMem;
