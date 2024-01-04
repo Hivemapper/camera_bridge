@@ -205,7 +205,7 @@ void FileOutput::outputBuffer(void *mem,
                     1,
                 });
             }
-        } catch(std::bad_alloc err) {
+        } catch(std::bad_alloc const&) {
             std::cerr << "Failed to allocate space for USB write" << std::endl;
         }
     }
