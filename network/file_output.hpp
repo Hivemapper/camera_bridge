@@ -21,11 +21,9 @@
 
 struct UsbThreadWork
 {
-    timeval time;
     std::filesystem::path filePath;
     MemoryWrapper memWrapper;
     MemoryWrapper exIfWrapper;
-    int index;
 };
 
 class FileOutput : public Output

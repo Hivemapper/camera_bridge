@@ -185,21 +185,17 @@ void FileOutput::outputBuffer(void *mem,
                 if (!options_->skip_4k)
                 {
                     filesToTransfer_.Post(UsbThreadWork{
-                        tv,
                         secFileName,
                         MemoryWrapper(mem, size), // Make a copy of mem and exifMem
                         MemoryWrapper(exifMem, exifSize),
-                        1,
                     });
                 }
                 else if (!options_->skip_2k)
                 {
                     filesToTransfer_.Post(UsbThreadWork{
-                        tv,
                         secFileName,
                         MemoryWrapper(prevMem, prevSize),
                         MemoryWrapper(exifMem, exifSize),
-                        1,
                     });
                 }
             }
