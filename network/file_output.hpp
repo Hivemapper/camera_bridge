@@ -72,12 +72,25 @@ struct MemoryWrapper {
             free(this->exifMem);
         }
 
+        MemoryWrapper(MemoryWrapper&& other) 
+        {
+            this->operator=(std::move(other));
+        }
+
+        MemoryWrapper& operator=(MemoryWrapper&& other) 
+        {
+            this->mem = other.mem;
+            this->memSize = other.memSize;
+            this->exifMem = other.exifMem;
+            this->exifMemSize = other.exifMemSize;
+
+            other.mem = nullptr;
+            other.exifMem = nullptr;
+            return *this;
+        }
+
         MemoryWrapper(const MemoryWrapper&) = delete;
         MemoryWrapper& operator=(const MemoryWrapper&) = delete;
-
-        MemoryWrapper(MemoryWrapper&&) = default;
-        MemoryWrapper& operator=(MemoryWrapper&&) = default;
-
 
         void *mem;
         size_t memSize;
