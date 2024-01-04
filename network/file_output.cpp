@@ -70,23 +70,6 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
 FileOutput::~FileOutput() {
 }
 
-void FileOutput::usbThreadLoop() {
-    while (1) {
-        waitForUSB_.release();
-        Work w = std::move(filesToTransfer_.Wait());
-
-        const MemoryWrapper &m = w.memWrapper;
-        std::cout << "Stats: " << m.mem << " " << m.memSize << " " << m.exifMem << " " << m.exifMemSize << std::endl;
-
-        if (!options_->skip_4k) {
-            const MemoryWrapper &mw = w.memWrapper;
-            wrapAndWrite(mw.mem, w.filePath, mw.memSize, mw.exifMem, mw.exifMemSize, 1);
-            std::lock_guard<std::mutex> lock(fileQueueMutex_);
-            filesStoredOnUSB_.push_back(w.filePath);
-        }
-    }
-}
-
 void FileOutput::collectExistingFilenames() {
     std::lock_guard<std::mutex> lock(fileQueueMutex_);
 
@@ -323,4 +306,21 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
     }
     close(fd);
 
+}
+
+void FileOutput::usbThreadLoop() {
+    while (1) {
+        waitForUSB_.release();
+        Work w = std::move(filesToTransfer_.Wait());
+
+        const MemoryWrapper &m = w.memWrapper;
+        std::cerr << "Stats: " << m.mem << " " << m.memSize << " " << m.exifMem << " " << m.exifMemSize << std::endl;
+
+        if (!options_->skip_4k) {
+            const MemoryWrapper &mw = w.memWrapper;
+            wrapAndWrite(mw.mem, w.filePath, mw.memSize, mw.exifMem, mw.exifMemSize, 1);
+            std::lock_guard<std::mutex> lock(fileQueueMutex_);
+            filesStoredOnUSB_.push_back(w.filePath);
+        }
+    }
 }

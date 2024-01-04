@@ -11,134 +11,20 @@
 #include <sys/un.h>
 #include <sys/time.h>
 
-#include <queue>
 #include <mutex>
 #include <thread>
 #include "output.hpp"
-#include <condition_variable>
-#include <semaphore>
 
-template <typename T>
-class MessageQueue
+#include "../common/message_queue.hpp"
+#include "../common/semaphore.hpp"
+#include "../common/memory_wrapper.hpp"
+
+struct Work
 {
-public:
-    template <typename U>
-    void Post(U &&msg)
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        queue_.push(std::forward<U>(msg));
-        cond_.notify_one();
-    }
-    T Wait()
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cond_.wait(lock, [this] { return !queue_.empty(); });
-        T msg = std::move(queue_.front());
-        queue_.pop();
-        return msg;
-    }
-    void Clear()
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        queue_ = {};
-    }
-
-private:
-    std::queue<T> queue_;
-    std::mutex mutex_;
-    std::condition_variable cond_;
-};
-
-struct MemoryWrapper {
-    public:
-        MemoryWrapper(void *mem, size_t memSize, void *exifMem, size_t exifMemSize)
-        :memSize(memSize), exifMemSize(exifMemSize)
-        {
-            this->mem = malloc(memSize);
-            if (this->mem == nullptr) {
-                throw std::bad_alloc();
-            }
-            this->exifMem = malloc(exifMemSize);
-            if (this->exifMem == nullptr) {
-                this->~MemoryWrapper();
-                throw std::bad_alloc();
-            }
-            memcpy(this->mem, mem, memSize);
-            memcpy(this->exifMem, exifMem, exifMemSize);
-        }
-        ~MemoryWrapper()
-        {
-            free(this->mem);
-            free(this->exifMem);
-        }
-
-        MemoryWrapper(MemoryWrapper&& other) 
-        {
-            this->operator=(std::move(other));
-        }
-
-        MemoryWrapper& operator=(MemoryWrapper&& other) 
-        {
-            this->mem = other.mem;
-            this->memSize = other.memSize;
-            this->exifMem = other.exifMem;
-            this->exifMemSize = other.exifMemSize;
-
-            other.mem = nullptr;
-            other.exifMem = nullptr;
-            return *this;
-        }
-
-        MemoryWrapper(const MemoryWrapper&) = delete;
-        MemoryWrapper& operator=(const MemoryWrapper&) = delete;
-
-        void *mem;
-        size_t memSize;
-        void *exifMem;
-        size_t exifMemSize;
-};
-
-struct Work {
     timeval time;
     std::filesystem::path filePath;
     MemoryWrapper memWrapper;
     int index;
-};
-
-using namespace std::chrono_literals;
-class Semaphore {
-    std::mutex mutex_;
-    std::condition_variable condition_;
-    unsigned long count_ = 0; // Initialized as locked.
-
-
-public:
-    void release() {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        ++count_;
-        condition_.notify_one();
-    }
-
-    bool acquire() {
-        std::unique_lock<decltype(mutex_)> lock(mutex_);
-        // while(!count_) // Handle spurious wake-ups.
-        //     condition_.wait(lock);
-        condition_.wait_for(lock, 1ms);
-        if (!count_) {
-            return false; 
-        }
-        --count_;
-        return true;
-    }
-
-    bool try_acquire() {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        if(count_) {
-            --count_;
-            return true;
-        }
-        return false;
-    }
 };
 
 class FileOutput : public Output
@@ -150,12 +36,11 @@ public:
     void checkGPSLock();
 
 protected:
-
     void usbThreadLoop();
 
     void outputBuffer(void *mem,
                       size_t size,
-                      void* prevMem,
+                      void *prevMem,
                       size_t prevSize,
                       void *exifMem,
                       size_t exifSize,
@@ -170,7 +55,6 @@ protected:
     std::string currentDate();
 
 private:
-
     bool verbose_;
     bool gpsLockAcq_;
     bool writeTempFile_;
