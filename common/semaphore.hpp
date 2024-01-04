@@ -15,7 +15,7 @@ public:
 
     bool try_acquire()
     {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         if (count_)
         {
             --count_;
