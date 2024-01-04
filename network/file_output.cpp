@@ -177,7 +177,7 @@ void FileOutput::outputBuffer(void *mem,
                                                         prefix_, tv.tv_sec,
                                                         tv.tv_usec, postfix_);
 
-        bool usbThreadAvailable = waitForUSB_.acquire();
+        bool usbThreadAvailable = waitForUSB_.try_acquire();
         if (usbThreadAvailable)
         {
             try
