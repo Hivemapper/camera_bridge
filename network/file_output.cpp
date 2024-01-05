@@ -63,6 +63,8 @@ FileOutput::FileOutput(VideoOptions const *options) : Output(options) {
     if (!dirUSB_.empty()) {
         collectExistingFilenames();
     }
+
+    usbThread_ = std::thread(std::bind(&FileOutput::usbThreadLoop, this)); 
 }
 
 FileOutput::~FileOutput() {
@@ -174,15 +176,32 @@ void FileOutput::outputBuffer(void *mem,
         fs::path secFileName = dirWithDate / fmt::format("{}{:0>10d}_{:0>6d}{}", 
                                                         prefix_, tv.tv_sec,
                                                         tv.tv_usec, postfix_);
-        if (!options_->skip_4k) {
-            wrapAndWrite(mem, secFileName, size, exifMem, exifSize, 1);
-            std::lock_guard<std::mutex> lock(fileQueueMutex_);
-            filesStoredOnUSB_.push_back(secFileName);
-        } else {
-            if (!options_->skip_2k) {
-                wrapAndWrite(prevMem, secFileName, prevSize, exifMem, exifSize, 1);
-                std::lock_guard<std::mutex> lock(fileQueueMutex_);
-                filesStoredOnUSB_.push_back(secFileName);
+
+        bool usbThreadAvailable = waitForUSB_.try_acquire();
+        if (usbThreadAvailable)
+        {
+            try
+            {
+                if (!options_->skip_4k)
+                {
+                    filesToTransfer_.Post(UsbThreadWork{
+                        secFileName,
+                        MemoryWrapper(mem, size), // Make a copy of mem and exifMem
+                        MemoryWrapper(exifMem, exifSize),
+                    });
+                }
+                else if (!options_->skip_2k)
+                {
+                    filesToTransfer_.Post(UsbThreadWork{
+                        secFileName,
+                        MemoryWrapper(prevMem, prevSize),
+                        MemoryWrapper(exifMem, exifSize),
+                    });
+                }
+            }
+            catch (std::bad_alloc const &)
+            {
+                std::cerr << "Failed to allocate space for USB write" << std::endl;
             }
         }
     }
@@ -297,4 +316,18 @@ void FileOutput::writeFile(std::string fullFileName, void *mem, size_t size,
     }
     close(fd);
 
+}
+
+void FileOutput::usbThreadLoop() {
+    while (1) {
+        waitForUSB_.release();
+        UsbThreadWork w = std::move(filesToTransfer_.Wait());
+
+        const MemoryWrapper &mem = w.memWrapper;
+        const MemoryWrapper &exIf = w.exIfWrapper;
+
+        wrapAndWrite(mem.mem, w.filePath, mem.size, exIf.mem, exIf.size, 1);
+        std::lock_guard<std::mutex> lock(fileQueueMutex_);
+        filesStoredOnUSB_.push_back(w.filePath);
+    }
 }

@@ -11,9 +11,20 @@
 #include <sys/un.h>
 #include <sys/time.h>
 
-#include <queue>
 #include <mutex>
+#include <thread>
 #include "output.hpp"
+
+#include "../common/message_queue.hpp"
+#include "../common/semaphore.hpp"
+#include "../common/memory_wrapper.hpp"
+
+struct UsbThreadWork
+{
+    std::filesystem::path filePath;
+    MemoryWrapper memWrapper;
+    MemoryWrapper exIfWrapper;
+};
 
 class FileOutput : public Output
 {
@@ -24,10 +35,11 @@ public:
     void checkGPSLock();
 
 protected:
+    void usbThreadLoop();
 
     void outputBuffer(void *mem,
                       size_t size,
-                      void* prevMem,
+                      void *prevMem,
                       size_t prevSize,
                       void *exifMem,
                       size_t exifSize,
@@ -42,7 +54,6 @@ protected:
     std::string currentDate();
 
 private:
-
     bool verbose_;
     bool gpsLockAcq_;
     bool writeTempFile_;
@@ -59,5 +70,8 @@ private:
     std::deque<std::filesystem::path> filesStoredOnUSB_;
     uint32_t minUSBFreeSpace_ = 0;
     uint32_t maxUSBFiles_ = 0;
+    MessageQueue<UsbThreadWork> filesToTransfer_;
 
+    std::thread usbThread_;
+    Semaphore waitForUSB_;
 };
