@@ -34,7 +34,6 @@ static int get_v4l2_colorspace(std::optional<libcamera::ColorSpace> const &cs)
 	else if (cs == libcamera::ColorSpace::Smpte170m)
 		return V4L2_COLORSPACE_SMPTE170M;
 
-	LOG(1, "H264: surprising colour space: " << libcamera::ColorSpace::toString(cs));
 	return V4L2_COLORSPACE_SMPTE170M;
 }
 
@@ -47,7 +46,6 @@ H264Encoder::H264Encoder(VideoOptions const *options, StreamInfo const &info)
 	fd_ = open(device_name, O_RDWR, 0);
 	if (fd_ < 0)
 		throw std::runtime_error("failed to open V4L2 H264 encoder");
-	LOG(2, "Opened H264Encoder on " << device_name << " as fd " << fd_);
 
 	// Apply any options->
 
@@ -153,7 +151,6 @@ H264Encoder::H264Encoder(VideoOptions const *options, StreamInfo const &info)
 	reqbufs.memory = V4L2_MEMORY_DMABUF;
 	if (xioctl(fd_, VIDIOC_REQBUFS, &reqbufs) < 0)
 		throw std::runtime_error("request for output buffers failed");
-	LOG(2, "Got " << reqbufs.count << " output buffers");
 
 	// We have to maintain a list of the buffers we can use when our caller gives
 	// us another frame to encode.
@@ -166,7 +163,6 @@ H264Encoder::H264Encoder(VideoOptions const *options, StreamInfo const &info)
 	reqbufs.memory = V4L2_MEMORY_MMAP;
 	if (xioctl(fd_, VIDIOC_REQBUFS, &reqbufs) < 0)
 		throw std::runtime_error("request for capture buffers failed");
-	LOG(2, "Got " << reqbufs.count << " capture buffers");
 	num_capture_buffers_ = reqbufs.count;
 
 	for (unsigned int i = 0; i < reqbufs.count; i++)
@@ -199,7 +195,6 @@ H264Encoder::H264Encoder(VideoOptions const *options, StreamInfo const &info)
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	if (xioctl(fd_, VIDIOC_STREAMON, &type) < 0)
 		throw std::runtime_error("failed to start capture streaming");
-	LOG(2, "Codec streaming started");
 
 	output_thread_ = std::thread(&H264Encoder::outputThread, this);
 	poll_thread_ = std::thread(&H264Encoder::pollThread, this);
@@ -216,31 +211,19 @@ H264Encoder::~H264Encoder()
 	// buffers that we requested. The capture ones need to be "munmapped" first.
 
 	v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	if (xioctl(fd_, VIDIOC_STREAMOFF, &type) < 0)
-		LOG(1, "Failed to stop output streaming");
+
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	if (xioctl(fd_, VIDIOC_STREAMOFF, &type) < 0)
-		LOG(1, "Failed to stop capture streaming");
 
 	v4l2_requestbuffers reqbufs = {};
 	reqbufs.count = 0;
 	reqbufs.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	reqbufs.memory = V4L2_MEMORY_DMABUF;
-	if (xioctl(fd_, VIDIOC_REQBUFS, &reqbufs) < 0)
-		LOG(1, "Request to free output buffers failed");
 
-	for (int i = 0; i < num_capture_buffers_; i++)
-		if (munmap(buffers_[i].mem, buffers_[i].size) < 0)
-			LOG(1, "Failed to unmap buffer");
 	reqbufs = {};
 	reqbufs.count = 0;
 	reqbufs.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	reqbufs.memory = V4L2_MEMORY_MMAP;
-	if (xioctl(fd_, VIDIOC_REQBUFS, &reqbufs) < 0)
-		LOG(1, "Request to free capture buffers failed");
-
 	close(fd_);
-	LOG(2, "H264Encoder closed");
 }
 
 void H264Encoder::EncodeBuffer(int fd, size_t size, void *mem, StreamInfo const &info, int64_t timestamp_us)

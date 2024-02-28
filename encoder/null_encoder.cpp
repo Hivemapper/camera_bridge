@@ -13,7 +13,6 @@
 
 NullEncoder::NullEncoder(VideoOptions const *options) : Encoder(options), abort_(false)
 {
-	LOG(2, "Opened NullEncoder");
 	output_thread_ = std::thread(&NullEncoder::outputThread, this);
 }
 
@@ -21,7 +20,6 @@ NullEncoder::~NullEncoder()
 {
 	abort_ = true;
 	output_thread_.join();
-	LOG(2, "NullEncoder closed");
 }
 
 // Push the buffer onto the output queue to be "encoded" and returned.

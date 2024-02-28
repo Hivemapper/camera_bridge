@@ -311,8 +311,6 @@ LibAvEncoder::LibAvEncoder(VideoOptions const *options, StreamInfo const &info)
 
 	av_dump_format(out_fmt_ctx_, 0, options_->output.c_str(), 1);
 
-	LOG(2, "libav: codec init completed");
-
 	video_thread_ = std::thread(&LibAvEncoder::videoThread, this);
 
 	if (options->libav_audio)
@@ -339,8 +337,6 @@ LibAvEncoder::~LibAvEncoder()
 		avcodec_free_context(&codec_ctx_[AudioIn]);
 		avcodec_free_context(&codec_ctx_[AudioOut]);
 	}
-
-	LOG(2, "libav: codec closed");
 }
 
 void LibAvEncoder::EncodeBuffer(int fd, size_t size, void *mem, StreamInfo const &info, int64_t timestamp_us)
@@ -432,7 +428,6 @@ void LibAvEncoder::initOutput()
 			if (n < 0)
 				throw std::runtime_error("failed to generate filename");
 		}
-		LOG(2, "Outputting with filename: " << filename.c_str());
 
 		// libav uses "pipe:" for stdout
 		if (filename == "-")
@@ -705,7 +700,6 @@ void LibAvEncoder::audioThread()
 
 		if (av_audio_fifo_space(fifo) < num_output_samples)
 		{
-			LOG(1, "libav: Draining audio fifo, configure a larger size");
 			av_audio_fifo_drain(fifo, num_output_samples);
 		}
 
