@@ -93,8 +93,6 @@ void Output::OutputReady(void *mem,
         std::cout << e.what() << std::endl;
         Signal();
     }
-
-    int64_t done_time = timestamp_now();
 }
 
 void Output::outputBuffer(void *mem,
