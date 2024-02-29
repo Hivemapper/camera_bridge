@@ -387,9 +387,6 @@ void MjpegEncoder::encodeThread(int num) {
             // If no item is available, sleep a bit before checking again
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        if (num == 0) { // Let only one thread handle the adjustment to avoid conflicts
-            adjustThreadCount();
-        }
     }
 }
 
