@@ -259,69 +259,6 @@ void MjpegEncoder::initDownSampleInfo(EncodeItem &source) {
     didInitDSI_ = true;
 }
 
-void MjpegEncoder::CreateExifData(EncodeItem &source, uint8_t *&exif_buffer, size_t &exif_len) {
-    ExifData *exif = nullptr;
-    exif_buffer = nullptr;
-    exif_len = 0;
-    try {
-        exif = exif_data_new();
-        if (!exif) {
-            throw std::runtime_error("failed to allocate EXIF data");
-        }
-
-        exif_data_set_byte_order(exif, exif_byte_order);
-
-        ExifEntry *entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_MAKE);
-        exif_set_string(entry, "Raspberry Pi CM4");
-
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_MODEL);
-        exif_set_string(entry, "IMX477");
-
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_SOFTWARE);
-        exif_set_string(entry, "capable-camera bridge");
-
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME);
-
-        std::time_t raw_time;
-        std::time(&raw_time);
-        std::tm *time_info;
-        char time_string[32];
-        time_info = std::localtime(&raw_time);
-        std::strftime(time_string, sizeof(time_string), "%Y:%m:%d %H:%M:%S", time_info);
-        exif_set_string(entry, time_string);
-
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME_ORIGINAL);
-        exif_set_string(entry, time_string);
-
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_DATE_TIME_DIGITIZED);
-        exif_set_string(entry, time_string);
-
-        // Now add some tags filled in from the image metadata.
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_EXPOSURE_TIME);
-        ExifRational exposure = {(ExifLong) source.expo_time, 1000000};
-        exif_set_rational(entry->data, exif_byte_order, exposure);
-
-        entry = exif_create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_ISO_SPEED_RATINGS);
-        float gain = source.alog_gain * source.digi_gain;
-        exif_set_short(entry->data, exif_byte_order, 100 * gain);
-
-        // And create the EXIF data buffer
-        unsigned int exifWriteLen;
-        exif_data_save_data(exif, &exif_buffer, &exifWriteLen);
-        exif_data_unref(exif);
-        exif_len = exifWriteLen;
-        exif = nullptr;
-    }
-    catch (std::exception const &e) {
-        std::cerr << "Failed to write the exif buffer" << std::endl;
-        if (exif)
-            exif_data_unref(exif);
-        if (exif_buffer)
-            free(exif_buffer);
-        throw;
-    }
-}
-
 void MjpegEncoder::createBuffer(struct jpeg_compress_struct &cinfo, EncodeItem &item, int num) {
     (void) num;
 
