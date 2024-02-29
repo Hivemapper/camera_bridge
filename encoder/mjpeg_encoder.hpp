@@ -30,6 +30,19 @@ private:
     std::condition_variable cond_;
 };
 
+struct EncodeItem {
+    void *mem;
+    size_t size;
+    unsigned int width;
+    unsigned int height;
+    unsigned int stride;
+    int64_t timestamp_us;
+    int32_t expo_time;
+    float alog_gain;
+    float digi_gain;
+    uint64_t index;
+};
+
 class MjpegEncoder : public Encoder {
 public:
     MjpegEncoder(VideoOptions const *options);
@@ -52,19 +65,6 @@ private:
     bool doDownsample_;
     uint64_t index_;
     BufferPool bufferPool_;
-
-    struct EncodeItem {
-        void *mem;
-        size_t size;
-        unsigned int width;
-        unsigned int height;
-        unsigned int stride;
-        int64_t timestamp_us;
-        int32_t expo_time;
-        float alog_gain;
-        float digi_gain;
-        uint64_t index;
-    };
 
     // Global frame buffer and mutex
     std::deque<EncodeItem> frame_buffer;
