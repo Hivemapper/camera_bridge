@@ -60,8 +60,6 @@ void Output::OutputReady(void *mem,
                          int64_t timestamp_us,
                          bool keyframe)
 {
-    int64_t ready_time = timestamp_now();
-
     // When output is enabled, we may have to wait for the next keyframe.
     uint32_t flags = keyframe ? FLAG_KEYFRAME : FLAG_NONE;
     if (!enable_)
