@@ -189,7 +189,7 @@ void BufferPool::ReleaseBuffer(uint8_t* buffer) {
 
 
 MjpegEncoder::MjpegEncoder(VideoOptions const *options)
-    : Encoder(options), abort_(false), index_(0), doDownsample_(false), didInitDSI_(false),
+    : Encoder(options), abort_(false), doDownsample_(false), index_(0), didInitDSI_(false),
       bufferPool_(NUM_ENC_THREADS, 2028 * 1024 * 1.5) {
     for (int i = 0; i < NUM_ENC_THREADS; ++i) {
         encode_thread_[i] = std::thread(&MjpegEncoder::encodeThread, this, i);
