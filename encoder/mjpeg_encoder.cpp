@@ -13,6 +13,7 @@
 #include <libexif/exif-data.h>
 #include <libcamera/controls.h>
 #include <map>
+#include <stdexcept>
 #include <cstring>
 #include "mjpeg_encoder.hpp"
 
@@ -21,6 +22,40 @@ typedef size_t jpeg_mem_len_t;
 #else
 typedef unsigned long jpeg_mem_len_t;
 #endif
+
+class BufferPool {
+public:
+    BufferPool(size_t bufferCount, size_t bufferSize) {
+        for (size_t i = 0; i < bufferCount; ++i) {
+            buffers_.emplace_back(new uint8_t[bufferSize]);
+        }
+    }
+
+    ~BufferPool() {
+        for (auto& buffer : buffers_) {
+            delete[] buffer;
+        }
+    }
+
+    uint8_t* GetBuffer() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        cond_.wait(lock, [this] { return !buffers_.empty(); });
+        uint8_t* buffer = buffers_.front();
+        buffers_.pop_front();
+        return buffer;
+    }
+
+    void ReleaseBuffer(uint8_t* buffer) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        buffers_.push_back(buffer);
+        cond_.notify_one();
+    }
+
+private:
+    std::deque<uint8_t*> buffers_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
+};
 
 /*
  * EXIF data functions from libcamera-apps
@@ -161,26 +196,24 @@ void exif_set_string(ExifEntry *entry, char const *s) {
 }
 
 MjpegEncoder::MjpegEncoder(VideoOptions const *options)
-        : Encoder(options), abort_(false), index_(0) {
-    if (options_->verbose && !options_->snapshot) {
-        output_thread_ = std::thread(&MjpegEncoder::outputThread, this);
+    : Encoder(options), abort_(false), index_(0), doDownsample_(false), didInitDSI_(false),
+      bufferPool_(NUM_ENC_THREADS, 2028 * 1024 * 1.5) {
+    for (int i = 0; i < NUM_ENC_THREADS; ++i) {
+        encode_thread_[i] = std::thread(&MjpegEncoder::encodeThread, this, i);
     }
-
-    for (int ii = 0; ii < NUM_ENC_THREADS; ii += 1) {
-        encode_thread_[ii] = std::thread(std::bind(&MjpegEncoder::encodeThread, this, ii));
-    }
-    if (options_->verbose) {
-        std::cerr << "Opened MjpegEncoder" << std::endl;
-    }
-    if (options_->downsampleStreamDir != "") {
-        std::cerr << "Opening downsample stream at " << options_->downsampleStreamDir << std::endl;
-        doDownsample_ = true;
-
-    }
-    didInitDSI_ = false;
+    output_thread_ = std::thread(&MjpegEncoder::outputThread, this);
 }
 
 MjpegEncoder::~MjpegEncoder() {
+    Stop();
+    for (auto &thread : encode_thread_) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+    if (output_thread_.joinable()) {
+        output_thread_.join();
+    }
 }
 
 void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height,
@@ -409,6 +442,8 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
                                    int num) {
     (void) num;
 
+    uint8_t *scaleBuffer = bufferPool_.GetBuffer();
+    
     uint8_t *crop_Y = (uint8_t *) cropBuffer_[num];
     uint8_t *crop_U = (uint8_t *) crop_Y + crop_y_size_;
     uint8_t *crop_V = (uint8_t *) crop_U + crop_uv_size_;
@@ -423,8 +458,6 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
     unsigned int scale_uv_size = scale_uv_stride * scale_height;
     unsigned int scale_size = crop_y_size_ + (crop_uv_size_ * 2);
 
-    uint8_t *scaleBuffer = (uint8_t *) malloc(scale_size);
-
     uint8_t *scale_Y = (uint8_t *) scaleBuffer;
     uint8_t *scale_U = (uint8_t *) scale_Y + scale_y_size;
     uint8_t *scale_V = (uint8_t *) scale_U + scale_uv_size;
@@ -432,6 +465,7 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
     uint8_t *scale_Y_max = scale_Y + scale_y_size - 1;
     uint8_t *scale_U_max = scale_U + scale_uv_size - 1;
     uint8_t *scale_V_max = scale_V + scale_uv_size - 1;
+
 
     libyuv::I420Scale(
             crop_Y, crop_stride_,
@@ -478,7 +512,7 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
 
     jpeg_finish_compress(&cinfo);
     buffer_len = jpeg_mem_len;
-    free(scaleBuffer);
+    bufferPool_.ReleaseBuffer(scaleBuffer);
 }
 
 void MjpegEncoder::encodeThread(int num) {
@@ -537,8 +571,6 @@ void MjpegEncoder::encodeThread(int num) {
 
         auto start_buffer_time = std::chrono::high_resolution_clock::now();
         {
-            CreateExifData(encode_item, exif_buffer, exif_buffer_len);
-
             createBuffer(cinfoMain, encode_item, num);
             buffer_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
 
@@ -614,10 +646,6 @@ void MjpegEncoder::outputThread() {
 }
 
 void MjpegEncoder::Stop() {
-    std::cout << "Stop call!" << std::endl;
     abort_ = true;
-    for (int i = 0; i < NUM_ENC_THREADS; i++){
-        encode_thread_[i].join();
-    }
-    std::cout << "All threads stopped" << std::endl;
+    encode_cond_var_.notify_all();
 }
