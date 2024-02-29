@@ -23,40 +23,6 @@ typedef size_t jpeg_mem_len_t;
 typedef unsigned long jpeg_mem_len_t;
 #endif
 
-class BufferPool {
-public:
-    BufferPool(size_t bufferCount, size_t bufferSize) {
-        for (size_t i = 0; i < bufferCount; ++i) {
-            buffers_.emplace_back(new uint8_t[bufferSize]);
-        }
-    }
-
-    ~BufferPool() {
-        for (auto& buffer : buffers_) {
-            delete[] buffer;
-        }
-    }
-
-    uint8_t* GetBuffer() {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cond_.wait(lock, [this] { return !buffers_.empty(); });
-        uint8_t* buffer = buffers_.front();
-        buffers_.pop_front();
-        return buffer;
-    }
-
-    void ReleaseBuffer(uint8_t* buffer) {
-        std::unique_lock<std::mutex> lock(mutex_);
-        buffers_.push_back(buffer);
-        cond_.notify_one();
-    }
-
-private:
-    std::deque<uint8_t*> buffers_;
-    std::mutex mutex_;
-    std::condition_variable cond_;
-};
-
 /*
  * EXIF data functions from libcamera-apps
  */
@@ -194,6 +160,33 @@ void exif_set_string(ExifEntry *entry, char const *s) {
         throw std::runtime_error("failed to copy exif string");
     entry->format = EXIF_FORMAT_ASCII;
 }
+
+BufferPool::BufferPool(size_t bufferCount, size_t bufferSize) {
+    for (size_t i = 0; i < bufferCount; ++i) {
+        buffers_.emplace_back(new uint8_t[bufferSize]);
+    }
+}
+
+BufferPool::~BufferPool() {
+    for (auto& buffer : buffers_) {
+        delete[] buffer;
+    }
+}
+
+uint8_t* BufferPool::GetBuffer() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    cond_.wait(lock, [this] { return !buffers_.empty(); });
+    uint8_t* buffer = buffers_.front();
+    buffers_.pop_front();
+    return buffer;
+}
+
+void BufferPool::ReleaseBuffer(uint8_t* buffer) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    buffers_.push_back(buffer);
+    cond_.notify_one();
+}
+
 
 MjpegEncoder::MjpegEncoder(VideoOptions const *options)
     : Encoder(options), abort_(false), index_(0), doDownsample_(false), didInitDSI_(false),

@@ -17,6 +17,19 @@
 
 struct jpeg_compress_struct;
 
+class BufferPool {
+public:
+    BufferPool(size_t bufferCount, size_t bufferSize);
+    ~BufferPool();
+    uint8_t* GetBuffer();
+    void ReleaseBuffer(uint8_t* buffer);
+
+private:
+    std::deque<uint8_t*> buffers_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
+};
+
 class MjpegEncoder : public Encoder {
 public:
     MjpegEncoder(VideoOptions const *options);
