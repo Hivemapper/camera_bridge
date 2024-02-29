@@ -386,7 +386,6 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
 
     unsigned int scale_y_size = scale_y_stride * scale_height;
     unsigned int scale_uv_size = scale_uv_stride * scale_height;
-    unsigned int scale_size = crop_y_size_ + (crop_uv_size_ * 2);
 
     uint8_t *scale_Y = (uint8_t *) scaleBuffer;
     uint8_t *scale_U = (uint8_t *) scale_Y + scale_y_size;
