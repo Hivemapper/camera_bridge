@@ -66,12 +66,14 @@ private:
 
     std::queue<EncodeItem> encode_queue_;
     std::mutex encode_mutex_;
+    std::mutex stat_mutex_;
     std::condition_variable encode_cond_var_;
     std::thread encode_thread_[NUM_ENC_THREADS];
     std::thread output_thread_;
 
     bool didInitDSI_;
 
+    uint32_t frame_second_;
     unsigned int crop_width_;
     unsigned int crop_height_;
     unsigned int crop_stride_;
