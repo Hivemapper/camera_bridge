@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <deque>
 
 #include <jpeglib.h>
 #include <libyuv.h>
@@ -72,11 +73,16 @@ MjpegEncoder::~MjpegEncoder() {
     }
 }
 
+// Global Frame Buffer
+std::deque<EncodeItem> frame_buffer;
+std::mutex frame_buffer_mutex;
+const size_t MAX_BUFFER_SIZE = 100; // Adjust based on available memory
+
 void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height,
                                 unsigned int stride, int64_t timestamp_us, libcamera::ControlList metadata) {
     int32_t newExpoTime = *metadata.get(libcamera::controls::ExposureTime);
-    float   newAlogGain = *metadata.get(libcamera::controls::AnalogueGain);
-    float   newDigiGain = *metadata.get(libcamera::controls::DigitalGain);
+    float newAlogGain = *metadata.get(libcamera::controls::AnalogueGain);
+    float newDigiGain = *metadata.get(libcamera::controls::DigitalGain);
 
     EncodeItem item = { mem,
                         size,
@@ -89,12 +95,14 @@ void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int wid
                         newDigiGain,
                         index_++ };
 
-    std::lock_guard<std::mutex> lock(encode_mutex_);
-    if (!didInitDSI_) {
-        initDownSampleInfo(item);
+    {
+        std::lock_guard<std::mutex> lock(frame_buffer_mutex);
+        if (frame_buffer.size() < MAX_BUFFER_SIZE) {
+            frame_buffer.push_back(item);
+        } else {
+            std::cerr << "Warning: Frame buffer is full. Skipping frame." << std::endl;
+        }
     }
-    encode_queue_.push(item);
-    encode_cond_var_.notify_all();
 }
 
 void MjpegEncoder::initDownSampleInfo(EncodeItem &source) {
@@ -310,7 +318,6 @@ MjpegEncoder::encodeDownsampleJPEG(struct jpeg_compress_struct &cinfo, uint8_t *
 void MjpegEncoder::encodeThread(int num) {
     struct jpeg_compress_struct cinfoMain;
     struct jpeg_compress_struct cinfoPrev;
-
     struct jpeg_error_mgr jerr;
 
     cinfoMain.err = jpeg_std_error(&jerr);
@@ -318,110 +325,85 @@ void MjpegEncoder::encodeThread(int num) {
 
     jpeg_create_compress(&cinfoMain);
     jpeg_create_compress(&cinfoPrev);
+
     typedef std::chrono::duration<float, std::milli> duration;
-
-    duration buffer_time(0);
-    duration encoding_time(0);
-    duration scaling_time(0);
-    duration output_time(0);
-    duration total_time(0);
-
-    EncodeItem encode_item;
-
-
-//    uint8_t *encoded_buffer = (uint8_t *) malloc(options_->crop_width * options_->crop_height);
-//    uint8_t *encoded_prev_buffer = (uint8_t *) malloc(options_->scale_width * options_->scale_height);
-//        uint8_t *exif_buffer = nullptr;
+    duration buffer_time(0), encoding_time(0), scaling_time(0), output_time(0), total_time(0);
 
     while (true) {
+        EncodeItem encode_item;
+        bool item_available = false;
+
         {
-            std::unique_lock<std::mutex> lock(encode_mutex_);
-            while (true) {
-                using namespace std::chrono_literals;
-                if (abort_) {
-                    std::cout << "aborting mpeg encoder: " << num  << std::endl;
-                    jpeg_destroy_compress(&cinfoMain);
-                    return;
-                }
-                if (!encode_queue_.empty()) {
-                    encode_item = encode_queue_.front();
-                    encode_queue_.pop();
-                    break;
-                } else {
-                    encode_cond_var_.wait_for(lock, 200ms);
-                }
+            std::unique_lock<std::mutex> lock(frame_buffer_mutex);
+            if (abort_) {
+                std::cout << "aborting mpeg encoder: " << num << std::endl;
+                jpeg_destroy_compress(&cinfoMain);
+                return;
+            }
+            if (!frame_buffer.empty()) {
+                encode_item = frame_buffer.front();
+                frame_buffer.pop_front();
+                item_available = true;
             }
         }
 
-        uint8_t *exif_buffer = nullptr;
-        uint8_t *encoded_buffer = nullptr;
-        uint8_t *encoded_prev_buffer = nullptr;
+        if (item_available) {
+            uint8_t *exif_buffer = nullptr;
+            uint8_t *encoded_buffer = nullptr;
+            uint8_t *encoded_prev_buffer = nullptr;
+            size_t buffer_len = 0, buffer_prev_len = 0, exif_buffer_len = 0;
 
-        size_t buffer_len = 0;
-        size_t buffer_prev_len = 0;
-        size_t exif_buffer_len = 0;
-
-        auto start_buffer_time = std::chrono::high_resolution_clock::now();
-        {
+            auto start_buffer_time = std::chrono::high_resolution_clock::now();
             createBuffer(cinfoMain, encode_item, num);
-            buffer_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
+            buffer_time = std::chrono::high_resolution_clock::now() - start_buffer_time;
 
             auto start_encoding_time = std::chrono::high_resolution_clock::now();
             if (!options_->skip_4k) {
                 encodeJPEG(cinfoMain, encoded_buffer, buffer_len, num);
             }
-            encoding_time = (std::chrono::high_resolution_clock::now() - start_encoding_time);
+            encoding_time = std::chrono::high_resolution_clock::now() - start_encoding_time;
 
             auto start_scaling_time = std::chrono::high_resolution_clock::now();
             if (!options_->skip_2k) {
                 encodeDownsampleJPEG(cinfoPrev, encoded_prev_buffer, buffer_prev_len, num);
             }
-            scaling_time = (std::chrono::high_resolution_clock::now() - start_scaling_time);
+            scaling_time = std::chrono::high_resolution_clock::now() - start_scaling_time;
+
+            // Callbacks to notify the completion of encoding
+            auto start_output_time = std::chrono::high_resolution_clock::now();
+            input_done_callback_(nullptr);
+            output_ready_callback_(encoded_buffer, buffer_len, encoded_prev_buffer, buffer_prev_len, exif_buffer, exif_buffer_len, encode_item.timestamp_us, true);
+            output_time = std::chrono::high_resolution_clock::now() - start_output_time;
+
+            // After encoding, free memory and update statistics
+            free(exif_buffer);
+            free(encoded_buffer);
+            free(encoded_prev_buffer);
+            if (options_->verbose) {
+                stat_mutex_.lock();
+                frame_second_++;
+                stat_mutex_.unlock();
+            }
+        } else {
+            // If no item is available, sleep a bit before checking again
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-
-        // Don't return buffers until the output thread as that's where they're
-        // in order again.
-        // We push this encoded buffer to another thread so that our
-        // application can take its time with the data without blocking the
-        // encode process.
-
-        auto start_output_time = std::chrono::high_resolution_clock::now();
-        input_done_callback_(nullptr);
-
-
-        output_ready_callback_(
-                encoded_buffer, buffer_len,
-                encoded_prev_buffer, buffer_prev_len,
-                exif_buffer, exif_buffer_len,
-                encode_item.timestamp_us,
-                true);
-
-        output_time = (std::chrono::high_resolution_clock::now() - start_output_time);
-        total_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
-
-        if (options_->verbose) {
-            std::cout << "Frame processed in: " << total_time.count()
-                      << " buffer: " << buffer_time.count()
-                      << " 4k: " << encoding_time.count()
-                      << " 2k: " << scaling_time.count()
-                      << " out: " << output_time.count()
-                      << std::endl;
-        }
-
-
-
-        free(exif_buffer);
-        free(encoded_buffer);
-        free(encoded_prev_buffer);
-
-        if (options_->verbose) {
-            stat_mutex_.lock();
-            frame_second_++;
-            stat_mutex_.unlock();
+        if (num == 0) { // Let only one thread handle the adjustment to avoid conflicts
+            adjustThreadCount();
         }
     }
 }
 
+void MjpegEncoder::adjustThreadCount() {
+    std::lock_guard<std::mutex> lock(frame_buffer_mutex);
+    if (frame_buffer.size() > MAX_BUFFER_SIZE * 0.8 && encode_thread_.size() < MAX_THREADS) {
+        // Add new thread
+        std::thread new_thread(&MjpegEncoder::encodeThread, this, encode_thread_.size());
+        new_thread.detach();
+        encode_thread_.push_back(std::move(new_thread));
+    }
+    // You can also add logic to reduce threads if buffer is consistently low
+}
 
 void MjpegEncoder::outputThread() {
     if (options_->verbose) {

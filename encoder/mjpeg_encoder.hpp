@@ -42,9 +42,11 @@ public:
 
 private:
     static const int NUM_ENC_THREADS = 4;
+    static const size_t MAX_BUFFER_SIZE = 30; // Adjust based on available memory
 
     void encodeThread(int num);
     void outputThread();
+    void adjustThreadCount(); // Declaration for the new method
 
     bool abort_;
     bool doDownsample_;
@@ -64,11 +66,14 @@ private:
         uint64_t index;
     };
 
-    std::queue<EncodeItem> encode_queue_;
+    // Global frame buffer and mutex
+    std::deque<EncodeItem> frame_buffer;
+    std::mutex frame_buffer_mutex;
+
     std::mutex encode_mutex_;
     std::mutex stat_mutex_;
     std::condition_variable encode_cond_var_;
-    std::thread encode_thread_[NUM_ENC_THREADS];
+    std::vector<std::thread> encode_thread_; // Changed to vector to dynamically manage threads
     std::thread output_thread_;
 
     bool didInitDSI_;
