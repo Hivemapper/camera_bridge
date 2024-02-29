@@ -76,7 +76,8 @@ MjpegEncoder::~MjpegEncoder() {
 // Global Frame Buffer
 std::deque<EncodeItem> frame_buffer;
 std::mutex frame_buffer_mutex;
-const size_t MAX_BUFFER_SIZE = 100; // Adjust based on available memory
+const size_t MAX_BUFFER_SIZE = 50; // Adjust based on available memory
+const size_t MAX_THREADS = 10;
 
 void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height,
                                 unsigned int stride, int64_t timestamp_us, libcamera::ControlList metadata) {

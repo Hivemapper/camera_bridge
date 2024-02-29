@@ -55,7 +55,6 @@ public:
 
 private:
     static const int NUM_ENC_THREADS = 4;
-    static const size_t MAX_BUFFER_SIZE = 30; // Adjust based on available memory
 
     void encodeThread(int num);
     void outputThread();
