@@ -55,6 +55,8 @@ public:
 
 private:
     static const int NUM_ENC_THREADS = 4;
+    static const int MAX_BUFFER_SIZE = 50;  // You can also make this configurable if needed
+    static const int MAX_THREADS = 10;
 
     void encodeThread(int num);
     void outputThread();
@@ -67,8 +69,6 @@ private:
 
     std::deque<EncodeItem> frame_buffer_;  // Moved from global scope to class member
     std::mutex frame_buffer_mutex_;
-    const size_t MAX_BUFFER_SIZE = 50;  // You can also make this configurable if needed
-    const size_t MAX_THREADS = 10;
 
     std::mutex encode_mutex_;
     std::mutex stat_mutex_;
