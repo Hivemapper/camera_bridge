@@ -65,9 +65,10 @@ private:
     uint64_t index_;
     BufferPool bufferPool_;
 
-    // Global frame buffer and mutex
-    std::deque<EncodeItem> frame_buffer;
-    std::mutex frame_buffer_mutex;
+    std::deque<EncodeItem> frame_buffer_;  // Moved from global scope to class member
+    std::mutex frame_buffer_mutex_;
+    const size_t MAX_BUFFER_SIZE = 50;  // You can also make this configurable if needed
+    const size_t MAX_THREADS = 10;
 
     std::mutex encode_mutex_;
     std::mutex stat_mutex_;

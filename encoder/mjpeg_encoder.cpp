@@ -73,12 +73,6 @@ MjpegEncoder::~MjpegEncoder() {
     }
 }
 
-// Global Frame Buffer
-std::deque<EncodeItem> frame_buffer;
-std::mutex frame_buffer_mutex;
-const size_t MAX_BUFFER_SIZE = 50; // Adjust based on available memory
-const size_t MAX_THREADS = 10;
-
 void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int width, unsigned int height,
                                 unsigned int stride, int64_t timestamp_us, libcamera::ControlList metadata) {
     int32_t newExpoTime = *metadata.get(libcamera::controls::ExposureTime);
@@ -97,9 +91,9 @@ void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int wid
                         index_++ };
 
     {
-        std::lock_guard<std::mutex> lock(frame_buffer_mutex);
-        if (frame_buffer.size() < MAX_BUFFER_SIZE) {
-            frame_buffer.push_back(item);
+        std::lock_guard<std::mutex> lock(frame_buffer_mutex_);
+        if (frame_buffer_.size() < MAX_BUFFER_SIZE) {
+            frame_buffer_.push_back(item);
         } else {
             std::cerr << "Warning: Frame buffer is full. Skipping frame." << std::endl;
         }
@@ -335,15 +329,15 @@ void MjpegEncoder::encodeThread(int num) {
         bool item_available = false;
 
         {
-            std::unique_lock<std::mutex> lock(frame_buffer_mutex);
+            std::unique_lock<std::mutex> lock(frame_buffer_mutex_);
             if (abort_) {
                 std::cout << "aborting mpeg encoder: " << num << std::endl;
                 jpeg_destroy_compress(&cinfoMain);
                 return;
             }
-            if (!frame_buffer.empty()) {
-                encode_item = frame_buffer.front();
-                frame_buffer.pop_front();
+            if (!frame_buffer_.empty()) {
+                encode_item = frame_buffer_.front();
+                frame_buffer_.pop_front();
                 item_available = true;
             }
         }
@@ -396,8 +390,8 @@ void MjpegEncoder::encodeThread(int num) {
 }
 
 void MjpegEncoder::adjustThreadCount() {
-    std::lock_guard<std::mutex> lock(frame_buffer_mutex);
-    if (frame_buffer.size() > MAX_BUFFER_SIZE * 0.8 && encode_thread_.size() < MAX_THREADS) {
+    std::lock_guard<std::mutex> lock(frame_buffer_mutex_);
+    if (frame_buffer_.size() > MAX_BUFFER_SIZE * 0.8 && encode_thread_.size() < MAX_THREADS) {
         // Add new thread
         std::thread new_thread(&MjpegEncoder::encodeThread, this, encode_thread_.size());
         new_thread.detach();
