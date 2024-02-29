@@ -97,12 +97,6 @@ void Output::OutputReady(void *mem,
     }
 
     int64_t done_time = timestamp_now();
-
-    // Save timestamps to a file, if that was requested.
-    if (fp_timestamps_) {
-        fprintf(fp_timestamps_, "%" PRId64 ",%" PRId64 ",%" PRId64 "\n", last_timestamp_ / 1000,
-                ready_time-start_time_, done_time-start_time_);
-    }
 }
 
 void Output::outputBuffer(void *mem,

@@ -495,7 +495,6 @@ void MjpegEncoder::encodeThread(int num) {
     typedef std::chrono::duration<float, std::milli> duration;
 
     duration buffer_time(0);
-    duration encoding_time(0);
     duration scaling_time(0);
     duration output_time(0);
     duration total_time(0);
@@ -537,16 +536,8 @@ void MjpegEncoder::encodeThread(int num) {
 
         auto start_buffer_time = std::chrono::high_resolution_clock::now();
         {
-            CreateExifData(encode_item, exif_buffer, exif_buffer_len);
-
             createBuffer(cinfoMain, encode_item, num);
             buffer_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
-
-            auto start_encoding_time = std::chrono::high_resolution_clock::now();
-            if (!options_->skip_4k) {
-                encodeJPEG(cinfoMain, encoded_buffer, buffer_len, num);
-            }
-            encoding_time = (std::chrono::high_resolution_clock::now() - start_encoding_time);
 
             auto start_scaling_time = std::chrono::high_resolution_clock::now();
             if (!options_->skip_2k) {
@@ -578,7 +569,6 @@ void MjpegEncoder::encodeThread(int num) {
         if (options_->verbose) {
             std::cout << "Frame processed in: " << total_time.count()
                       << " buffer: " << buffer_time.count()
-                      << " 4k: " << encoding_time.count()
                       << " 2k: " << scaling_time.count()
                       << " out: " << output_time.count()
                       << std::endl;
