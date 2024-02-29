@@ -213,7 +213,7 @@ void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int wid
         std::cout << "================= QUEUE IS EMPTY NOW ================= " << std::endl;
     }
     encode_queue_.push(item);
-    std::cout << "Elements in the queue" << encode_queue_.size() << std::endl;
+    std::cout << "Elements in the queue: " << encode_queue_.size() << std::endl;
     encode_cond_var_.notify_all();
 }
 
@@ -545,6 +545,8 @@ void MjpegEncoder::encodeThread(int num) {
 
         auto start_buffer_time = std::chrono::high_resolution_clock::now();
         {
+            CreateExifData(encode_item, exif_buffer, exif_buffer_len);
+            
             createBuffer(cinfoMain, encode_item, num);
             buffer_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
 
