@@ -68,6 +68,7 @@ private:
     std::mutex encode_mutex_;
     std::condition_variable encode_cond_var_;
     std::thread encode_thread_[NUM_ENC_THREADS];
+    std::thread output_thread_;
 
     bool didInitDSI_;
 
