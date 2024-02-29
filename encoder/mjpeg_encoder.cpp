@@ -204,7 +204,16 @@ void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int wid
     if (!didInitDSI_) {
         initDownSampleInfo(item);
     }
+    // if encode queue bigger than 50, empty it
+    if (encode_queue_.size() > 50) {
+        std::cout << "================= EMPTYING THE QUEUE ================= " << std::endl;
+        while (!encode_queue_.empty()) {
+            encode_queue_.pop();
+        }
+        std::cout << "================= QUEUE IS EMPTY NOW ================= " << std::endl;
+    }
     encode_queue_.push(item);
+    std::cout << "Elements in the queue" << encode_queue_.size() << std::endl;
     encode_cond_var_.notify_all();
 }
 
