@@ -90,6 +90,10 @@ void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int wid
                         newDigiGain,
                         index_++ };
 
+    if (!didInitDSI_) {
+        initDownSampleInfo(item);
+    }
+
     {
         std::lock_guard<std::mutex> lock(frame_buffer_mutex_);
         if (frame_buffer_.size() < MAX_BUFFER_SIZE) {
@@ -118,7 +122,7 @@ void MjpegEncoder::initDownSampleInfo(EncodeItem &source) {
 
     crop_size_ = crop_y_size_ + crop_uv_size_ * 2;
 
-    for (int ii = 0; ii < NUM_ENC_THREADS; ii += 1) {
+    for (int ii = 0; ii < MAX_BUFFER_SIZE; ii += 1) {
         cropBuffer_[ii] = (uint8_t *) malloc(crop_size_);
     }
 

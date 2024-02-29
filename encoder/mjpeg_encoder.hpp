@@ -87,7 +87,7 @@ private:
     unsigned int crop_y_size_;
     unsigned int crop_uv_size_;
     unsigned int crop_size_;
-    uint8_t *cropBuffer_[NUM_ENC_THREADS];
+    uint8_t *cropBuffer_[MAX_THREADS];
 
     void initDownSampleInfo(EncodeItem &source);
     void createBuffer(struct jpeg_compress_struct &cinfo, EncodeItem &item, int num);
