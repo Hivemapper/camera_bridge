@@ -142,10 +142,8 @@ void FileOutput::outputBuffer(void *mem,
     catch (std::exception const &e) {
         std::cerr << "Time recording issues" << std::endl;
     }
-    std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir4K_, prefix_, tv.tv_sec,
-                                           tv.tv_usec, postfix_);
 
-    if (!dir2K_.empty() && !options_->skip_2k) {
+    if (!options_->skip_2k) {
         std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir2K_, prefix_, tv.tv_sec,
                                                tv.tv_usec, postfix_);
         wrapAndWrite(prevMem, prevFileName, prevSize, exifMem, exifSize, 2);
