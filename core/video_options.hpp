@@ -47,6 +47,8 @@ struct VideoOptions : public Options {
                  "crop width")
                 ("crop_height,d", value<int>(&crop_height)->default_value(50),
                  "crop height")
+                ("buffer_size,d", value<int>(&buffer_size)->default_value(4153344),
+                 "buffer size")
                 ("crop_offset_from_top,d", value<int>(&crop_offset_from_top)->default_value(50),
                  "crop offset from top")
                 ("skip_4k", value<bool>(&skip_4k)->default_value(false)->implicit_value(true),
@@ -86,6 +88,7 @@ struct VideoOptions : public Options {
     int scale_height;
     int crop_width;
     int crop_height;
+    int buffer_size;
     int crop_offset_from_top;
     bool skip_4k;
     bool skip_2k;
@@ -128,6 +131,9 @@ struct VideoOptions : public Options {
         }
         if (encoding_cfg.contains("crop_height")) {
             crop_height = encoding_cfg.at("crop_height");
+        }
+        if (encoding_cfg.contains("buffer_size")) {
+            buffer_size = encoding_cfg.at("buffer_size");
         }
         if (encoding_cfg.contains("crop_offset_from_top")) {
             crop_offset_from_top = encoding_cfg.at("crop_offset_from_top");
