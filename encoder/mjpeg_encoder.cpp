@@ -204,6 +204,14 @@ void MjpegEncoder::EncodeBuffer(int fd, size_t size, void *mem, unsigned int wid
     if (!didInitDSI_) {
         initDownSampleInfo(item);
     }
+    // if encode queue bigger than 50, empty it
+    if (encode_queue_.size() > 50) {
+        std::cout << "================= EMPTYING THE QUEUE ================= " << std::endl;
+        while (!encode_queue_.empty()) {
+            encode_queue_.pop();
+        }
+        std::cout << "================= QUEUE IS EMPTY NOW ================= " << std::endl;
+    }
     encode_queue_.push(item);
     encode_cond_var_.notify_all();
 }
@@ -495,7 +503,6 @@ void MjpegEncoder::encodeThread(int num) {
     typedef std::chrono::duration<float, std::milli> duration;
 
     duration buffer_time(0);
-    duration encoding_time(0);
     duration scaling_time(0);
     duration output_time(0);
     duration total_time(0);
@@ -542,12 +549,6 @@ void MjpegEncoder::encodeThread(int num) {
             createBuffer(cinfoMain, encode_item, num);
             buffer_time = (std::chrono::high_resolution_clock::now() - start_buffer_time);
 
-            auto start_encoding_time = std::chrono::high_resolution_clock::now();
-            if (!options_->skip_4k) {
-                encodeJPEG(cinfoMain, encoded_buffer, buffer_len, num);
-            }
-            encoding_time = (std::chrono::high_resolution_clock::now() - start_encoding_time);
-
             auto start_scaling_time = std::chrono::high_resolution_clock::now();
             if (!options_->skip_2k) {
                 encodeDownsampleJPEG(cinfoPrev, encoded_prev_buffer, buffer_prev_len, num);
@@ -578,7 +579,6 @@ void MjpegEncoder::encodeThread(int num) {
         if (options_->verbose) {
             std::cout << "Frame processed in: " << total_time.count()
                       << " buffer: " << buffer_time.count()
-                      << " 4k: " << encoding_time.count()
                       << " 2k: " << scaling_time.count()
                       << " out: " << output_time.count()
                       << std::endl;

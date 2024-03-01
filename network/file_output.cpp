@@ -142,84 +142,11 @@ void FileOutput::outputBuffer(void *mem,
     catch (std::exception const &e) {
         std::cerr << "Time recording issues" << std::endl;
     }
-    std::string primFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir4K_, prefix_, tv.tv_sec,
-                                           tv.tv_usec, postfix_);
-    if (!dir4K_.empty() && !options_->skip_4k) {
-        wrapAndWrite(mem, primFileName, size, exifMem, exifSize, 0);
-    }
 
-    if (!dirUSB_.empty() && fs::exists(dirUSB_)) {
-        std::filesystem::space_info space = std::filesystem::space(dirUSB_);
-
-        if (options_->verbose) {
-            std::cerr << "number of files stored: " << filesStoredOnUSB_.size() << std::endl;
-            std::cerr << "space free: " << space.free << std::endl;
-            std::cerr << "max usb files: " << maxUSBFiles_ << std::endl;
-            std::cerr << "min usb free space: " << minUSBFreeSpace_ << std::endl;
-        }
-
-        if ((minUSBFreeSpace_ > 0 && space.free < minUSBFreeSpace_)
-            || (maxUSBFiles_ > 0 && filesStoredOnUSB_.size() > maxUSBFiles_)) {
-            if (options_->verbose) {
-                std::cerr << "Out of space, removing older image files." << std::endl;
-            }
-            removeLast(5);
-        }
-
-        const fs::path dirWithDate = dirUSB_ / currentDate();
-        if(!fs::exists(dirWithDate)) {
-            bool status = fs::create_directory(dirWithDate);
-            if (!status) {
-                std::cerr << "Failed to create directory: " << dirWithDate << std::endl;
-            }
-        }
-        fs::path secFileName = dirWithDate / fmt::format("{}{:0>10d}_{:0>6d}{}", 
-                                                        prefix_, tv.tv_sec,
-                                                        tv.tv_usec, postfix_);
-
-        bool usbThreadAvailable = waitForUSB_.try_acquire();
-        if (usbThreadAvailable)
-        {
-            try
-            {
-                if (!options_->skip_4k)
-                {
-                    filesToTransfer_.Post(UsbThreadWork{
-                        secFileName,
-                        MemoryWrapper(mem, size), // Make a copy of mem and exifMem
-                        MemoryWrapper(exifMem, exifSize),
-                    });
-                }
-                else if (!options_->skip_2k)
-                {
-                    filesToTransfer_.Post(UsbThreadWork{
-                        secFileName,
-                        MemoryWrapper(prevMem, prevSize),
-                        MemoryWrapper(exifMem, exifSize),
-                    });
-                }
-            }
-            catch (std::bad_alloc const &)
-            {
-                std::cerr << "Failed to allocate space for USB write" << std::endl;
-            }
-        }
-    }
-
-    if (!dir2K_.empty() && !options_->skip_2k) {
+    if (!options_->skip_2k) {
         std::string prevFileName = fmt::format("{}{}{:0>10d}_{:0>6d}{}", dir2K_, prefix_, tv.tv_sec,
                                                tv.tv_usec, postfix_);
         wrapAndWrite(prevMem, prevFileName, prevSize, exifMem, exifSize, 2);
-    }
-    //After files are written. Update the latest marker
-    {
-        int fd, ret;
-        size_t latestSize = primFileName.size();
-        fd = open(latestFileName_.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        if ((ret = write(fd, primFileName.c_str(), latestSize)) < 0) {
-            throw std::runtime_error("failed to write latest data in file: " + latestFileName_);
-        }
-        close(fd);
     }
 
     frameNumTrun = (frameNumTrun + 1) % 1000;

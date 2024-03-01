@@ -60,8 +60,6 @@ void Output::OutputReady(void *mem,
                          int64_t timestamp_us,
                          bool keyframe)
 {
-    int64_t ready_time = timestamp_now();
-
     // When output is enabled, we may have to wait for the next keyframe.
     uint32_t flags = keyframe ? FLAG_KEYFRAME : FLAG_NONE;
     if (!enable_)
@@ -94,14 +92,6 @@ void Output::OutputReady(void *mem,
         std::cout << "Exception!" << std::endl;
         std::cout << e.what() << std::endl;
         Signal();
-    }
-
-    int64_t done_time = timestamp_now();
-
-    // Save timestamps to a file, if that was requested.
-    if (fp_timestamps_) {
-        fprintf(fp_timestamps_, "%" PRId64 ",%" PRId64 ",%" PRId64 "\n", last_timestamp_ / 1000,
-                ready_time-start_time_, done_time-start_time_);
     }
 }
 

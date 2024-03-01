@@ -49,7 +49,7 @@ struct VideoOptions : public Options {
                  "crop height")
                 ("crop_offset_from_top,d", value<int>(&crop_offset_from_top)->default_value(50),
                  "crop offset from top")
-                ("skip_4k", value<bool>(&skip_4k)->default_value(false)->implicit_value(true),
+                ("skip_4k", value<bool>(&skip_4k)->default_value(true)->implicit_value(true),
                  "skip 4k encoding")
                 ("skip_2k", value<bool>(&skip_2k)->default_value(false)->implicit_value(true),
                  "skip 2k encoding")
